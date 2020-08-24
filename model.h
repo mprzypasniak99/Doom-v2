@@ -3,12 +3,13 @@
 #define MODEL_H
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <vector>
 
 
 class Model
 {
-private:
+protected:
 	float* vertices;
 	float* colors;
 	float* normals;
@@ -25,6 +26,7 @@ public:
 	void setTex(GLuint t);
 
 	void draw();
+	void scale(float multiplier);
 };
 
 GLuint readTexture(const char* filename);

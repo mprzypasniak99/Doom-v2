@@ -144,7 +144,8 @@ void initOpenGLProgram(GLFWwindow* window) {
 	sp=new ShaderProgram("v_simplest.glsl",NULL,"f_simplest.glsl");
 	tex0 = readTexture("metal.png");
 	wall.setTex(tex0);
-	eye = new Model("models/eyeball/eyeball.obj", "models/eyeball/textures/Eye_D.png");
+	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
+	eye->scale(3.f);
 }
 
 

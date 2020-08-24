@@ -2,6 +2,7 @@
 #include "lodepng.h"
 #include "OBJ_Loader.h"
 
+
 Model::Model(float* v, float* c, float* n, float* tex, int count)
 {
 	vertexCount = count;
@@ -37,31 +38,31 @@ bool Model::load3dModel(const char* model)
 	}
 
 	std::vector<float> v, n, t;
-	for (int i = 0; i < loader.LoadedMeshes[1].Indices.size(); i += 3)
+	for (int i = 0; i < loader.LoadedMeshes[0].Indices.size(); i++)
 	{
-		int tmp = loader.LoadedMeshes[1].Indices[i];
+		int tmp = loader.LoadedMeshes[0].Indices[i];
 
-		v.push_back(loader.LoadedMeshes[1].Vertices[tmp].Position.X);
-		v.push_back(loader.LoadedMeshes[1].Vertices[tmp].Position.Y);
-		v.push_back(loader.LoadedMeshes[1].Vertices[tmp].Position.Z);
+		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.X);
+		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.Y);
+		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.Z);
 		v.push_back(1.f);
 
-		tmp = loader.LoadedMeshes[1].Indices[i+1];
+		//tmp = loader.LoadedMeshes[0].Indices[i+1];
 
-		n.push_back(loader.LoadedMeshes[1].Vertices[tmp].Normal.X);
-		n.push_back(loader.LoadedMeshes[1].Vertices[tmp].Normal.Y);
-		n.push_back(loader.LoadedMeshes[1].Vertices[tmp].Normal.Z);
-		n.push_back(1.f);
+		n.push_back(loader.LoadedMeshes[0].Vertices[tmp].Normal.X);
+		n.push_back(loader.LoadedMeshes[0].Vertices[tmp].Normal.Y);
+		n.push_back(loader.LoadedMeshes[0].Vertices[tmp].Normal.Z);
+		n.push_back(0.f);
 
-		tmp = loader.LoadedMeshes[1].Indices[i+2];
+		//tmp = loader.LoadedMeshes[0].Indices[i+2];
 
-		t.push_back(loader.LoadedMeshes[1].Vertices[tmp].TextureCoordinate.X);
-		t.push_back(loader.LoadedMeshes[1].Vertices[tmp].TextureCoordinate.Y);
+		t.push_back(loader.LoadedMeshes[0].Vertices[tmp].TextureCoordinate.X);
+		t.push_back(loader.LoadedMeshes[0].Vertices[tmp].TextureCoordinate.Y);
 	}
 	vertices = new float[v.size()];
 	normals = new float[n.size()];
 	texCoords = new float[t.size()];
-	vertexCount = loader.LoadedMeshes[1].Indices.size() / 3;
+	vertexCount = loader.LoadedMeshes[0].Indices.size();
 
 	for (int i = 0; i < v.size(); i++)
 	{
@@ -121,4 +122,12 @@ GLuint readTexture(const char* filename) {
 void Model::setTex(GLuint t)
 {
 	tex = t;
+}
+
+void Model::scale(float multiplier)
+{
+	for (int i = 3; i < vertexCount * 4; i += 4)
+	{
+		vertices[i] *= multiplier;
+	}
 }
