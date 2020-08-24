@@ -21,19 +21,23 @@
   <ItemGroup>
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="Foe.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="myCube.h" />
     <ClInclude Include="myTeapot.h" />
     <ClInclude Include="OBJ_Loader.h" />
+    <ClInclude Include="Prop.h" />
     <ClInclude Include="shaderprogram.h" />
     <ClInclude Include="wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Foe.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main_file.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="Prop.cpp" />
     <ClCompile Include="shaderprogram.cpp" />
   </ItemGroup>
   <ItemGroup>

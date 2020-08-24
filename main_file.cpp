@@ -35,6 +35,8 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "camera.hpp"
 #include "model.h"
 #include "wall.h"
+#include "Prop.h"
+#include "Foe.h"
 
 float speed_x=0;
 float speed_y=0;
@@ -42,6 +44,8 @@ float aspectRatio=1;
 Model wall = Model(myWallVertices, myWallColors, myWallNormals, myWallTexCoords, 6);
 
 Model* eye;
+
+Foe* foe;
 
 ShaderProgram *sp;
 
@@ -146,6 +150,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	wall.setTex(tex0);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
+	foe = new Foe(eye, glm::mat4(1.f), 1.f);
 }
 
 
@@ -213,9 +218,10 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 		Mw = glm::rotate(Mw, -PI / 2, glm::vec3(0.f, 0.f, 1.f));
 	}
 
-	t = glm::translate(M, glm::vec3(0.f, 0.f, -1.f));
+	foe->updatePos(V);
+	t = foe->getPos();
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(t));
-	eye->draw();
+	foe->draw();
 
     glDisableVertexAttribArray(1);  //Wyłącz przesyłanie danych do atrybutu vertex
 	glDisableVertexAttribArray(2);
