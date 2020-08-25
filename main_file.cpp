@@ -151,6 +151,8 @@ void initOpenGLProgram(GLFWwindow* window) {
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
 	foe = new Foe(eye, glm::mat4(1.f), 1.f);
+	foe->addRoutePoint(glm::vec4(0.f, 0.f, -10.f, 1.f));
+	foe->addRoutePoint(glm::vec4(5.f, 0.f, 5.f, 1.f));
 }
 
 
