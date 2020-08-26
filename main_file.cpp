@@ -35,13 +35,20 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "camera.hpp"
 #include "model.h"
 #include "wall.h"
+#include "Prop.h"
+#include "Foe.h"
 
 float speed_x=0;
 float speed_y=0;
 float aspectRatio=1;
 Model wall = Model(myWallVertices, myWallColors, myWallNormals, myWallTexCoords, 6);
 
+DoomGuy Guy;
+
+
 Model* eye;
+
+Foe* foe;
 
 ShaderProgram *sp;
 
@@ -144,7 +151,14 @@ void initOpenGLProgram(GLFWwindow* window) {
 	sp=new ShaderProgram("v_simplest.glsl",NULL,"f_simplest.glsl");
 	tex0 = readTexture("metal.png");
 	wall.setTex(tex0);
-	eye = new Model("models/eyeball/eyeball.obj", "models/eyeball/textures/Eye_D.png");
+
+	Guy.initDoomGuy(); //DoomGuy się inicjuje
+	
+	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
+	eye->scale(3.f);
+	foe = new Foe(eye, glm::mat4(1.f), 1.f);
+	foe->addRoutePoint(glm::vec4(0.f, 0.f, -10.f, 1.f));
+	foe->addRoutePoint(glm::vec4(5.f, 0.f, 5.f, 1.f));
 }
 
 
@@ -152,7 +166,9 @@ void initOpenGLProgram(GLFWwindow* window) {
 void freeOpenGLProgram(GLFWwindow* window) {
     //************Tutaj umieszczaj kod, który należy wykonać po zakończeniu pętli głównej************
 
-    delete sp;
+	delete eye;
+	delete foe;
+	delete sp;
 	glDeleteTextures(1, &tex0);
 }
 
@@ -177,6 +193,9 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	glm::mat4 Mw = glm::mat4(1.0f);
 	Mw = glm::rotate(Mw, PI / 2, glm::vec3(0.f, 0.f, 1.f));
 	glm::mat4 t;
+
+	glm::mat4 MDoomGuy = glm::mat4(1.0f); //Tymczasowy DoomGuy, bo przeca będzie razem z kamerą :)
+	MDoomGuy = glm::translate(MDoomGuy, glm::vec3(0.f, -6.f, -5.f)); //Tutaj mu się rączki z czajniczka odsuwają, żeby się nie poparzył
 
     sp->use();//Aktywacja programu cieniującego
     //Przeslij parametry programu cieniującego do karty graficznej
@@ -204,6 +223,11 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
     glDrawArrays(GL_TRIANGLES,0,vertexCount); //Narysuj obiekt
 
+
+	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(MDoomGuy));
+	Guy.drawDoomGuy(); //DoomGuy dołącza do żywych
+
+
 	for (int i = 0; i < 3; i++)
 	{
 		t = glm::translate(Mw, glm::vec3(0.f, -2.f, 0.f));
@@ -212,9 +236,10 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 		Mw = glm::rotate(Mw, -PI / 2, glm::vec3(0.f, 0.f, 1.f));
 	}
 
-	t = glm::translate(M, glm::vec3(0.f, 0.f, -1.f));
+	foe->updatePos(V);
+	t = foe->getPos();
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(t));
-	eye->draw();
+	foe->draw();
 
     glDisableVertexAttribArray(1);  //Wyłącz przesyłanie danych do atrybutu vertex
 	glDisableVertexAttribArray(2);
