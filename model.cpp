@@ -131,3 +131,82 @@ void Model::scale(float multiplier)
 		vertices[i] *= multiplier;
 	}
 }
+
+bool DoomGuy::initDoomGuy()
+{
+	tex[0] = readTexture("models/DoomShooter/initialShadingGroup_Base_Color.png");
+	tex[1] = readTexture("models/DoomShooter/doom_arms_d.png");
+
+	objl::Loader GuyLoader;
+
+	if (!GuyLoader.LoadFile("models/DoomShooter/1.obj"))
+	{
+		return false;
+	}
+
+	std::vector<float> v, n, t;
+	for (int j = 0; j < 2; j++) //Ciekawostka: wszystko co się zaczyna od o OBJ_loader wczytuje do oddzielnego Mesha, a tu mamy dwa
+	{
+		for (int i = 0; i < GuyLoader.LoadedMeshes[j].Indices.size(); i++)
+		{
+			int tmp = GuyLoader.LoadedMeshes[j].Indices[i];
+
+			v.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Position.X);
+			v.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Position.Y);
+			v.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Position.Z);
+			v.push_back(0.25f);
+
+
+			n.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Normal.X);
+			n.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Normal.Y);
+			n.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Normal.Z);
+			n.push_back(0.f);
+
+
+			t.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].TextureCoordinate.X);
+			t.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].TextureCoordinate.Y);
+		}
+		vertices[j] = new float[v.size()];
+		normals[j] = new float[n.size()];
+		texCoords[j] = new float[t.size()];
+		vertexCount[j] = GuyLoader.LoadedMeshes[j].Indices.size();
+
+		for (int i = 0; i < v.size(); i++)
+		{
+			vertices[j][i] = v[i];
+		}
+
+		for (int i = 0; i < n.size(); i++)
+		{
+			normals[j][i] = n[i];
+		}
+
+		for (int i = 0; i < t.size(); i++)
+		{
+			texCoords[j][i] = t[i];
+		}
+		v.clear();
+		n.clear();
+		t.clear();
+	}
+	return true;
+}
+
+void DoomGuy::drawDoomGuy()
+{
+	for (int i = 0; i < 2; i++)
+	{
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, vertices[i]); //Wska? tablic? z danymi dla atrybutu vertex
+
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, NULL);
+
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, 0, normals[i]);
+
+		glVertexAttribPointer(4, 2, GL_FLOAT, false, 0, texCoords[i]);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tex[i]);
+
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount[i]);
+	}
+}

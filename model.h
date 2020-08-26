@@ -29,6 +29,21 @@ public:
 
 	void draw();
 	void scale(float multiplier);
+
+};
+
+class DoomGuy
+{
+protected:
+	float* vertices[2];
+	float* normals[2];
+	float* texCoords[2];
+	int vertexCount[2];
+
+	GLuint tex[2];
+public:
+	bool initDoomGuy(); //Procedura do wczytywania z .obj i tekstur
+	void drawDoomGuy(); //Procedura rysuj�ca
 };
 
 GLuint readTexture(const char* filename);
