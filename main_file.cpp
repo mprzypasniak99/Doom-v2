@@ -153,7 +153,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	wall.setTex(tex0);
 
 	Guy.initDoomGuy(); //DoomGuy się inicjuje
-	
+  
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
 	foe = new Foe(eye, glm::mat4(1.f), 1.f);
