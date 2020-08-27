@@ -32,6 +32,17 @@ public:
 		pitch = 0.f;
 	}
 
+	Camera(glm::vec3 pos)
+	{
+		cPos = glm::vec3(pos.x - 0.1, pos.y + 0.6, pos.z + 1);
+		cDir = glm::vec3(0.f, 0.f, -1.f);
+		cUp = glm::vec3(0.f, 1.f, 0.f);
+		cDirX = glm::vec3(1.f, 0.f, 0.f);
+		camSpeed = 0.1f;
+		angleSpeed = 1.5f;
+		yaw = -90.f;
+		pitch = 0.f;
+	}
 	void UpdateCam(bool tab[4]);
 	void MouseMov(float yaw, float pitch);
 	glm::mat4 GetViewMatrix();

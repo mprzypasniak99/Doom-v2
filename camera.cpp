@@ -5,12 +5,12 @@ void Camera::UpdateCam(bool tab[4]) //trzeba przekazać do funkcji tablicę wyni
 	if (tab[up])
 	{
 		cPos += camSpeed * cDir;
-		cPos.y -= camSpeed * cDir.y;
+		//cPos.y -= camSpeed * cDir.y;
 	}
 	if (tab[down])
 	{
 		cPos -= camSpeed * cDir;
-		cPos.y += camSpeed * cDir.y;
+		//cPos.y += camSpeed * cDir.y;
 	}
 	if (tab[left])
 	{
