@@ -116,6 +116,8 @@ GLuint readTexture(const char* filename) {
 		GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)image.data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	return tex;
 }
 
@@ -139,13 +141,13 @@ bool DoomGuy::initDoomGuy()
 
 	objl::Loader GuyLoader;
 
-	if (!GuyLoader.LoadFile("models/DoomShooter/1.obj"))
+	if (!GuyLoader.LoadFile("models/DoomShooter/LOD_0_5.obj"))
 	{
 		return false;
 	}
 
 	std::vector<float> v, n, t;
-	for (int j = 0; j < 2; j++) //Ciekawostka: wszystko co się zaczyna od o OBJ_loader wczytuje do oddzielnego Mesha, a tu mamy dwa
+	for (int j = 0; j < 1; j++) //Ciekawostka: wszystko co się zaczyna od o OBJ_loader wczytuje do oddzielnego Mesha, a tu mamy dwa
 	{
 		for (int i = 0; i < GuyLoader.LoadedMeshes[j].Indices.size(); i++)
 		{
@@ -154,7 +156,7 @@ bool DoomGuy::initDoomGuy()
 			v.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Position.X);
 			v.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Position.Y);
 			v.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Position.Z);
-			v.push_back(0.25f);
+			v.push_back(1.f);
 
 
 			n.push_back(GuyLoader.LoadedMeshes[j].Vertices[tmp].Normal.X);
@@ -194,7 +196,7 @@ bool DoomGuy::initDoomGuy()
 
 void DoomGuy::drawDoomGuy()
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, vertices[i]); //Wska? tablic? z danymi dla atrybutu vertex
 

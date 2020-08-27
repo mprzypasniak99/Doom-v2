@@ -1,6 +1,4 @@
 #pragma once
-#ifndef MODEL_H
-#define MODEL_H
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -47,8 +45,6 @@ public:
 };
 
 GLuint readTexture(const char* filename);
-
-#endif // !MODEL_H
 
 
 

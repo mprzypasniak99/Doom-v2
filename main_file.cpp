@@ -37,16 +37,19 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "wall.h"
 #include "Prop.h"
 #include "Foe.h"
+#include "Projectile.h"
 
 float speed_x=0;
 float speed_y=0;
+glm::vec3 BaseCam = glm::vec3(0.1f, -0.6f, 9.f);
 float aspectRatio=1;
 Model wall = Model(myWallVertices, myWallColors, myWallNormals, myWallTexCoords, 6);
 
 DoomGuy Guy;
 
-
+Model* gun;
 Model* eye;
+Model* projectile;
 
 Foe* foe;
 
@@ -55,8 +58,12 @@ ShaderProgram *sp;
 GLuint tex0;
 
 bool key_dir[4] = { false }; //zmienne używane do poruszania kamery
+bool shoot = false;
 
+std::vector<Projectile*> bullets;
+Projectile* t;
 Camera cam;
+//Camera cam = Camera(BaseCam);
 glm::vec3 cPos = glm::vec3(0.f, 0.f, -10.f);
 glm::vec3 cDir = glm::vec3(0.f, 0.f, 10.f);
 
@@ -132,6 +139,38 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	cam.MouseMov(yaw, pitch);
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		shoot = true;
+	}
+}
+
+void test_shot(glm::mat4 V)
+{
+	if (shoot)
+	{
+		glm::vec4 mov = glm::transpose(V) * ((V * glm::vec4(0.f, 0.f, 1.f, 1.f)) * -1.f); 
+		// vector from point (0,0,1,1) in world space to the camera
+		glm::mat4 pos = glm::translate(glm::mat4(1.f), glm::vec3(mov.x, mov.y, mov.z));
+		// moving projectile to point (0,0,1,1) in eye space
+		glm::vec4 posV = V * pos[3];
+		// position of projectile in eye space
+
+		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(V[2].x, V[2].z)));
+		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(V[2].y, V[2].z)));
+		// angles by which projectile will be rotated to start facing the camera
+
+		pos = glm::rotate(pos, angleY, glm::vec3(0.f, 1.f, 0.f));
+		pos = glm::rotate(pos, -angleX, glm::vec3(1.f, 0.f, 0.f));
+
+		t = new Projectile(projectile, pos, -pos[2], 2.f, 5.f);
+		bullets.push_back(t);
+		shoot = false;
+	}
+}
+
 void windowResizeCallback(GLFWwindow* window,int width,int height) {
     if (height==0) return;
     aspectRatio=(float)width/(float)height;
@@ -147,13 +186,15 @@ void initOpenGLProgram(GLFWwindow* window) {
 	glfwSetKeyCallback(window,keyCallback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	sp=new ShaderProgram("v_simplest.glsl",NULL,"f_simplest.glsl");
 	tex0 = readTexture("metal.png");
 	wall.setTex(tex0);
+	projectile = new Model("models/projectile/projectile.obj", "models/projectile/projectile.png");
 
-	Guy.initDoomGuy(); //DoomGuy się inicjuje
-  
+	//Guy.initDoomGuy(); //DoomGuy się inicjuje
+	gun = new Model("models/DoomShooter/gunCombined_process.obj", "models/DoomShooter/T_gun_BC.png");
+	gun->scale(30.f);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
 	foe = new Foe(eye, glm::mat4(1.f), 1.f);
@@ -183,7 +224,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	cam.UpdateCam(key_dir);
 
 	glm::mat4 V = cam.GetViewMatrix();
-
+	BaseCam = glm::vec3(-V[3][0], -V[3][1], -V[3][2]);
     glm::mat4 P=glm::perspective(50.0f*PI/180.0f, aspectRatio, 0.01f, 50.0f); //Wylicz macierz rzutowania
 
     glm::mat4 M=glm::mat4(1.0f);
@@ -195,7 +236,13 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	glm::mat4 t;
 
 	glm::mat4 MDoomGuy = glm::mat4(1.0f); //Tymczasowy DoomGuy, bo przeca będzie razem z kamerą :)
-	MDoomGuy = glm::translate(MDoomGuy, glm::vec3(0.f, -6.f, -5.f)); //Tutaj mu się rączki z czajniczka odsuwają, żeby się nie poparzył
+	//MDoomGuy = glm::translate(MDoomGuy, glm::vec3(BaseCam.x + 0.1, BaseCam.y - 0.6, BaseCam.z - 1));
+	MDoomGuy = glm::rotate(MDoomGuy, PI, glm::vec3(0.f, 1.f, 0.f));
+	MDoomGuy = glm::rotate(MDoomGuy, glm::radians(yaw + 90), glm::vec3(0.f, -1.f, 0.f));
+	MDoomGuy = glm::rotate(MDoomGuy, glm::radians(pitch), glm::vec3(-1.f, 0.f, 0.f));
+	MDoomGuy = glm::translate(MDoomGuy, glm::vec3(-MDoomGuy[3][0] + V[3][0] - 0.1f, MDoomGuy[3][1] - V[3][1] - 0.6f, -MDoomGuy[3][2] + V[3][2] + 1.f));
+
+
 
     sp->use();//Aktywacja programu cieniującego
     //Przeslij parametry programu cieniującego do karty graficznej
@@ -210,23 +257,24 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	glEnableVertexAttribArray(3);  //Włącz przesyłanie danych do atrybutu vertex
 	glEnableVertexAttribArray(4);  //Włącz przesyłanie danych do atrybutu vertex
     
-	glVertexAttribPointer(1,4,GL_FLOAT,false,0,vertices); //Wskaż tablicę z danymi dla atrybutu vertex
-	
-	glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, colors);
+	//glVertexAttribPointer(1,4,GL_FLOAT,false,0,vertices); //Wskaż tablicę z danymi dla atrybutu vertex
+	//
+	//glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, colors);
 
-	glVertexAttribPointer(3, 4, GL_FLOAT, false, 0, normals);
+	//glVertexAttribPointer(3, 4, GL_FLOAT, false, 0, normals);
 
-	glVertexAttribPointer(4, 2, GL_FLOAT, false, 0, texCoords);
+	//glVertexAttribPointer(4, 2, GL_FLOAT, false, 0, texCoords);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, tex0);
 
-    glDrawArrays(GL_TRIANGLES,0,vertexCount); //Narysuj obiekt
+ //   glDrawArrays(GL_TRIANGLES,0,vertexCount); //Narysuj obiekt
 
 
+
+	//Guy.drawDoomGuy(); //DoomGuy dołącza do żywych
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(MDoomGuy));
-	Guy.drawDoomGuy(); //DoomGuy dołącza do żywych
-
+	gun->draw();
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -240,6 +288,24 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	t = foe->getPos();
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(t));
 	foe->draw();
+
+	test_shot(V);
+
+	for (int i = 0; i < bullets.size(); i++)
+	{
+		if (bullets[i]->updatePos(V))
+		{
+			t = bullets[i]->getPos();
+			glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(t));
+			bullets[i]->draw();
+		}
+		else
+		{
+			delete bullets[i];
+			bullets.erase(bullets.begin() + i);
+		}
+		
+	}
 
     glDisableVertexAttribArray(1);  //Wyłącz przesyłanie danych do atrybutu vertex
 	glDisableVertexAttribArray(2);

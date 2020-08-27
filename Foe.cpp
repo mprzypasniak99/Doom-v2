@@ -8,7 +8,7 @@ void Foe::addRoutePoint(glm::vec4 point)
 void Foe::updatePos(glm::mat4 V)
 {
 	std::chrono::time_point<std::chrono::system_clock> now;
-	glm::vec4 pos = position[3];//[0] * position[0] + position[3][1] * position[1] + position[3][2] * position[2];
+	glm::vec4 pos = position[3];
 	// computing position of enemy in world space
 	pos[3] = position[3][3];
 	glm::vec4 posV = V * pos; // computing position in eye space
