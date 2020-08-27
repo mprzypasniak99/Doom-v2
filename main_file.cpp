@@ -244,6 +244,8 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
 
 
+
+
     sp->use();//Aktywacja programu cieniującego
     //Przeslij parametry programu cieniującego do karty graficznej
     glUniformMatrix4fv(sp->u("P"),1,false,glm::value_ptr(P));
