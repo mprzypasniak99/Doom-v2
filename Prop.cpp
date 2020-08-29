@@ -15,3 +15,18 @@ void Prop::draw()
 {
 	model->draw();
 }
+
+float* Prop::getPosX()
+{
+	return &position[3][0];
+}
+
+float* Prop::getPosY()
+{
+	return &position[3][1];
+}
+
+float* Prop::getPosZ()
+{
+	return &position[3][2];
+}
