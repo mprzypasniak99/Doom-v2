@@ -63,13 +63,18 @@ bool ColDet::detector()
 					return distance(hitboxes_list[i].hitbox.sphere.Middle, hitboxes_list[j].hitbox.sphere.Middle) <= hitboxes_list[i].hitbox.sphere.Radius + hitboxes_list[j].hitbox.sphere.Radius;
 					break;
 				case 3:
+					int collisions = 0;
 					float polygons[12][3][3];
 					triangles(hitboxes_list[j].hitbox.cuboid, polygons);
 					//We check in loop coliding with every plane of cuboid
 					for (int l = 0; l < 12; l++)
 					{
 						//Firstly, we need to check if the sphere collides with plane that our polygon lies on
-						bool outsidePlane = planeCollision(polygons[l], hitboxes_list[i].hitbox.sphere);
+						bool outsidePlane = false;
+						bool outsideAllVerts = false;
+						bool outsideAllEdges = false;
+						bool fullyInsidePlane = false;
+						outsidePlane = planeCollision(polygons[l], hitboxes_list[i].hitbox.sphere);
 						if (outsidePlane) continue; //If we are not colliding with plane there is no point in checking collision with polygon
 						//Now we can colide with vertex, edge or be completely inside plane
 						//To check if we are completely inside a polygon we will project plane into 2D
@@ -108,13 +113,13 @@ bool ColDet::detector()
 								if (sphere2D[0] < triangle2D[j][0] + vt * (triangle2D[k][0] - triangle2D[j][0])) ++cn;
 							}
 						}
-						bool fullyInsidePlane = cn & 1;
+						fullyInsidePlane = cn & 1;
 						//The collision with vertex is just calculating distances between vertexes and sphere center and comparing it with radius
 						bool outsideV1 = sqrt(pow(polygons[l][0][0] - *(hitboxes_list[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][0][1] - *(hitboxes_list[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][0][2] - *(hitboxes_list[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_list[i].hitbox.sphere.Radius;
 						bool outsideV2 = sqrt(pow(polygons[l][1][0] - *(hitboxes_list[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][1][1] - *(hitboxes_list[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][1][2] - *(hitboxes_list[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_list[i].hitbox.sphere.Radius;
 						bool outsideV3 = sqrt(pow(polygons[l][2][0] - *(hitboxes_list[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][2][1] - *(hitboxes_list[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][2][2] - *(hitboxes_list[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_list[i].hitbox.sphere.Radius;
-						if (outsideV1 && outsideV2 && outsideV3) bool outsideAllVerts = true;
-						else bool outsideAllVerts = false;
+						if (outsideV1 && outsideV2 && outsideV3) outsideAllVerts = true;
+						
 						//The last one thing is to check collision with edges
 						//Here i will use function found here: https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
 						if (!intersectRaySegmentSphere(polygons[l][0], a, hitboxes_list[i].hitbox.sphere.Middle, pow(hitboxes_list[i].hitbox.sphere.Radius, 2)) &&
@@ -122,11 +127,16 @@ bool ColDet::detector()
 							!intersectRaySegmentSphere(polygons[l][2], c, hitboxes_list[i].hitbox.sphere.Middle, pow(hitboxes_list[i].hitbox.sphere.Radius, 2)))
 						{
 							//sphere outside of all triangle edges
-							bool outsideAllEdges = true;
+							outsideAllEdges = true;
 						}
-						else bool outsideAllEdges = false;
-
+						if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
+						{
+							continue;
+						}
+						collisions++;
 					}
+					if (collisions) return true;
+					else return false;
 					break;
 				}
 				break;
