@@ -77,10 +77,11 @@ public:
 	void addModel(float* x, float* y, float* z);
 	void addModel(float* x, float* y, float* z, float radius);
 	void addModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift);
-	float*** triangles(Cuboid model);
-	float* normal(float x, float y, float z);
+	void triangles(Cuboid model, float triangles[12][3][3]);
+	float* normal(float* A, float* B, float* C);
 	float distance(Point a, Point b);
-	float planeCollision();
+	bool planeCollision(float triangles[3][3], Sphere sphere);
 	bool detector();
+	bool intersectRaySegmentSphere(float o[3], float d[3], Point so, float radius2);
 };
 #endif // !COLDET_H
