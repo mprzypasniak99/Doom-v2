@@ -158,11 +158,16 @@ void test_shot(glm::mat4 V)
 		// direction in which projectile will fly towards
 
 		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(dir.x, dir.z)));
-		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(dir.y, dir.z)));
+		
 		// angles by which projectile will be rotated to start facing the camera
 
 		pos = glm::rotate(pos, -angleY, glm::vec3(0.f, 1.f, 0.f));
-		pos = glm::rotate(pos, angleX, glm::vec3(1.f, 0.f, 0.f));
+
+		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(dir.y, dir.z)));
+
+		pos = glm::rotate(pos, -angleX, glm::vec3(1.f, 0.f, 0.f));
+
+		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir).xyz));
 
 		t = new Projectile(projectile, pos, dir, 2.f, 5.f);
 		bullets.push_back(t);
@@ -196,7 +201,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	gun->scale(30.f);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
-	foe = new Foe(eye, glm::mat4(1.f), 1.f);
+	foe = new Foe(eye, glm::mat4(1.f), 1.f, projectile);
 	foe->addRoutePoint(glm::vec4(0.f, 0.f, -10.f, 1.f));
 	foe->addRoutePoint(glm::vec4(5.f, 0.f, 5.f, 1.f));
 }
@@ -289,7 +294,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	t = foe->getPos();
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(t));
 	foe->draw();
-
+	foe->shoot(&bullets, glm::vec4(cam.getPos(), 1.f));
 	test_shot(V);
 
 	for (int i = 0; i < bullets.size(); i++)
