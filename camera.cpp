@@ -36,3 +36,13 @@ void Camera::MouseMov(float yaw, float pitch)
 	cDir = glm::normalize(direction);
 	cDirX = glm::normalize(glm::cross(cDir, cUp));
 }
+
+glm::vec3 Camera::getPos()
+{
+	return cPos;
+}
+
+glm::vec3 Camera::getDir()
+{
+	return cDir;
+}

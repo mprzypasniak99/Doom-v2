@@ -151,21 +151,20 @@ void test_shot(glm::mat4 V)
 {
 	if (shoot)
 	{
-		glm::vec4 mov = glm::transpose(V) * ((V * glm::vec4(0.f, 0.f, 1.f, 1.f)) * -1.f); 
-		// vector from point (0,0,1,1) in world space to the camera
-		glm::mat4 pos = glm::translate(glm::mat4(1.f), glm::vec3(mov.x, mov.y, mov.z));
+		glm::mat4 pos = glm::translate(glm::mat4(1.f), cam.getPos());
 		// moving projectile to point (0,0,1,1) in eye space
-		glm::vec4 posV = V * pos[3];
-		// position of projectile in eye space
 
-		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(V[2].x, V[2].z)));
-		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(V[2].y, V[2].z)));
+		glm::vec4 dir = glm::vec4(cam.getDir(), 0.f);
+		// direction in which projectile will fly towards
+
+		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(dir.x, dir.z)));
+		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(dir.y, dir.z)));
 		// angles by which projectile will be rotated to start facing the camera
 
-		pos = glm::rotate(pos, angleY, glm::vec3(0.f, 1.f, 0.f));
-		pos = glm::rotate(pos, -angleX, glm::vec3(1.f, 0.f, 0.f));
+		pos = glm::rotate(pos, -angleY, glm::vec3(0.f, 1.f, 0.f));
+		pos = glm::rotate(pos, angleX, glm::vec3(1.f, 0.f, 0.f));
 
-		t = new Projectile(projectile, pos, -pos[2], 2.f, 5.f);
+		t = new Projectile(projectile, pos, dir, 2.f, 5.f);
 		bullets.push_back(t);
 		shoot = false;
 	}
