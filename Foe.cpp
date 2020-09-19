@@ -49,7 +49,8 @@ void Foe::updatePos(glm::mat4 V)
 	
 }
 
-void Foe::shoot(std::vector<Projectile*> * bulletTab, glm::vec4 playerPos)
+
+void Foe::shoot(std::vector<Projectile*> * bulletTab, std::vector<std::vector<bool>>* col, ColDet* det, glm::vec4 playerPos)
 {
 	glm::vec4 dist = playerPos - position[3]; // computing position in eye space
 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
@@ -79,5 +80,9 @@ void Foe::shoot(std::vector<Projectile*> * bulletTab, glm::vec4 playerPos)
 		Projectile* tmp = new Projectile(bullet, pos, dir, 2.f, 5.f);
 
 		bulletTab->push_back(tmp);
+
+		det->addvModel(tmp->getPosX(), tmp->getPosX(), tmp->getPosX(), 0.249151);
+		(*col)[0].push_back(false);
+		(*col)[1].push_back(false);
 	}
 }

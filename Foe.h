@@ -1,6 +1,7 @@
 #pragma once
 #include "Prop.h"
 #include "Projectile.h"
+#include "coldet.h"
 #include <chrono>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -28,6 +29,7 @@ public:
 
 	void updatePos(glm::mat4 V);
 
-	void shoot(std::vector<Projectile*>* bulletTab, glm::vec4 playerPos);
+	void shoot(std::vector<Projectile*>* bulletTab, std::vector<std::vector<bool>>* col, ColDet* det, glm::vec4 playerPos);
+
 };
 
