@@ -46,6 +46,8 @@ public:
 	void UpdateCam(bool tab[4]);
 	void MouseMov(float yaw, float pitch);
 	glm::mat4 GetViewMatrix();
+	glm::vec3 getPos();
+	glm::vec3 getDir();
 };
 
 #endif // !CAMERA_HPP_INCLUDED

@@ -1,154 +1,263 @@
 #include "coldet.h"
 #include <math.h>
 
-ColDet::ColDet(int model_count)
+ColDet::ColDet(std::vector<std::vector<bool>>* collisions)
 {
-	hitboxes_list = new Hitbox[model_count];
-	next_free = 0;
+	collisions_bool = collisions;
+	//hitboxes_list = new Hitbox[model_count];
+	//next_free = 0;
 }
 
-void ColDet::addModel(float* x, float* y, float* z)
+//void ColDet::addModel(float* x, float* y, float* z)
+//{
+//	Base tmp;
+//	tmp.point = Point(x, y, z);
+//	hitboxes_list[next_free].hitbox = tmp;
+//	hitboxes_list[next_free].type = 1;
+//	next_free++;
+//}
+void ColDet::addvModel(float* x, float* y, float* z)
 {
 	Base tmp;
 	tmp.point = Point(x, y, z);
-	hitboxes_list[next_free].hitbox = tmp;
-	hitboxes_list[next_free].type = 1;
-	next_free++;
+	Hitbox tmp2;
+	tmp2.hitbox = tmp;
+	tmp2.type = 1;
+	hitboxes_vector.push_back(tmp2);
 }
+//void ColDet::addModel(float* x, float* y, float* z, float radius)
+//{
+//	Base tmp;
+//	tmp.sphere = Sphere(x, y, z, radius);
+//	hitboxes_list[next_free].hitbox = tmp;
+//	hitboxes_list[next_free].type = 2;
+//	next_free++;
+//}
 
-void ColDet::addModel(float* x, float* y, float* z, float radius)
+void ColDet::addvModel(float* x, float* y, float* z, float radius)
 {
 	Base tmp;
 	tmp.sphere = Sphere(x, y, z, radius);
-	hitboxes_list[next_free].hitbox = tmp;
-	hitboxes_list[next_free].type = 2;
-	next_free++;
+	Hitbox tmp2;
+	tmp2.hitbox = tmp;
+	tmp2.type = 2;
+	hitboxes_vector.push_back(tmp2);
 }
+//void ColDet::addModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift)
+//{
+//	Base tmp;
+//	tmp.cuboid = Cuboid(x, y, z, x_shift, y_shift, z_shift);
+//	hitboxes_list[next_free].hitbox = tmp;
+//	hitboxes_list[next_free].type = 3;
+//	next_free++;
+//}
 
-void ColDet::addModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift)
+void ColDet::addvModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift)
 {
 	Base tmp;
 	tmp.cuboid = Cuboid(x, y, z, x_shift, y_shift, z_shift);
-	hitboxes_list[next_free].hitbox = tmp;
-	hitboxes_list[next_free].type = 3;
-	next_free++;
+	Hitbox tmp2;
+	tmp2.hitbox = tmp;
+	tmp2.type = 3;
+	hitboxes_vector.push_back(tmp2);
 }
 
-bool ColDet::detector()
+void ColDet::erasevModel(int shift)
 {
-	for (int i = 0; i < next_free - 1; i++)
+	hitboxes_vector.erase(hitboxes_vector.begin() + shift);
+}
+void ColDet::detector()
+{
+	for (int i = 0; i < 2; i++) //next_free - 1; i++)
 	{
-		for (int j = i + 1; i < next_free; i++)
+		for (int j = i + 1; j < hitboxes_vector.size(); j++) //next_free; j++)
 		{
-			switch (hitboxes_list[i].type)
+			switch (hitboxes_vector[i].type)
 			{
 			case 1:
-				switch (hitboxes_list[j].type)
+				switch (hitboxes_vector[j].type)
 				{
 				case 2:
-					return distance(hitboxes_list[i].hitbox.point, hitboxes_list[j].hitbox.sphere.Middle) <= hitboxes_list[j].hitbox.sphere.Radius;
+					(*collisions_bool)[i][j - 1 - i] = distance(hitboxes_vector[i].hitbox.point, hitboxes_vector[j].hitbox.sphere.Middle) <= hitboxes_vector[j].hitbox.sphere.Radius;
 					break;
 				case 3:
-					return false;
+					(*collisions_bool)[i][j - 1 - i] = false;
 					break;
 				}
 				break;
 			case 2:
-				switch (hitboxes_list[j].type)
+				switch (hitboxes_vector[j].type)
 				{
 				case 1:
-					return distance(hitboxes_list[i].hitbox.sphere.Middle, hitboxes_list[j].hitbox.point) <= hitboxes_list[i].hitbox.sphere.Radius;
+					(*collisions_bool)[i][j - 1 - i] = distance(hitboxes_vector[i].hitbox.sphere.Middle, hitboxes_vector[j].hitbox.point) <= hitboxes_vector[i].hitbox.sphere.Radius;
 					break;
 				case 2:
-					return distance(hitboxes_list[i].hitbox.sphere.Middle, hitboxes_list[j].hitbox.sphere.Middle) <= hitboxes_list[i].hitbox.sphere.Radius + hitboxes_list[j].hitbox.sphere.Radius;
+					(*collisions_bool)[i][j - 1 - i] = distance(hitboxes_vector[i].hitbox.sphere.Middle, hitboxes_vector[j].hitbox.sphere.Middle) <= hitboxes_vector[i].hitbox.sphere.Radius + hitboxes_vector[j].hitbox.sphere.Radius;
 					break;
 				case 3:
-					int collisions = 0;
-					float polygons[12][3][3];
-					triangles(hitboxes_list[j].hitbox.cuboid, polygons);
-					//We check in loop coliding with every plane of cuboid
-					for (int l = 0; l < 12; l++)
+				{int collisions = 0;
+				float polygons[12][3][3];
+				triangles(hitboxes_vector[j].hitbox.cuboid, polygons);
+				//We check in loop coliding with every plane of cuboid
+				for (int l = 0; l < 12; l++)
+				{
+					//Firstly, we need to check if the sphere collides with plane that our polygon lies on
+					bool outsidePlane = false;
+					bool outsideAllVerts = false;
+					bool outsideAllEdges = false;
+					bool fullyInsidePlane = false;
+					outsidePlane = planeCollision(polygons[l], hitboxes_vector[i].hitbox.sphere);
+					if (outsidePlane) continue; //If we are not colliding with plane there is no point in checking collision with polygon
+					//Now we can colide with vertex, edge or be completely inside plane
+					//To check if we are completely inside a polygon we will project plane into 2D
+					float a[3] = { polygons[l][1][0] - polygons[l][0][0] , polygons[l][1][1] - polygons[l][0][1] , polygons[l][1][2] - polygons[l][0][2] };
+					float b[3] = { polygons[l][2][0] - polygons[l][1][0] , polygons[l][2][1] - polygons[l][1][1] , polygons[l][2][2] - polygons[l][1][2] };
+					float c[3] = { polygons[l][0][0] - polygons[l][2][0] , polygons[l][0][1] - polygons[l][2][1] , polygons[l][0][2] - polygons[l][2][2] };
+					//We only need one vector, but all of them can be useful later
+					float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
+					float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
+					float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
+					float planeY[3];
+					//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
+					planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
+					planeY[1] = N[2] * planeX[0] - N[0] * planeX[2];
+					planeY[2] = N[0] * planeX[1] - N[1] * planeX[0];
+					float len = sqrt(pow(planeY[0], 2) + pow(planeY[1], 2) + pow(planeY[2], 2));
+					//Normalizing the vector
+					planeY[0] /= len;
+					planeY[1] /= len;
+					planeY[2] /= len;
+					//Projecting vertices and sphere center
+					float sphere2D[2] = { *(hitboxes_vector[i].hitbox.sphere.Middle.X) * planeX[0] + *(hitboxes_vector[i].hitbox.sphere.Middle.Y) * planeX[1] + *(hitboxes_vector[i].hitbox.sphere.Middle.Z) * planeX[2], *(hitboxes_vector[i].hitbox.sphere.Middle.X) * planeY[0] + *(hitboxes_vector[i].hitbox.sphere.Middle.Y) * planeY[1] + *(hitboxes_vector[i].hitbox.sphere.Middle.Z) * planeY[2] };
+					float triangle2D[3][2] = { {polygons[l][0][0] * planeX[0] + polygons[l][0][1] * planeX[1] + polygons[l][0][2] * planeX[2], polygons[l][0][0] * planeY[0] + polygons[l][0][1] * planeY[1] + polygons[l][0][2] * planeY[2]},
+											   {polygons[l][1][0] * planeX[0] + polygons[l][1][1] * planeX[1] + polygons[l][1][2] * planeX[2], polygons[l][1][0] * planeY[0] + polygons[l][1][1] * planeY[1] + polygons[l][1][2] * planeY[2]},
+											   {polygons[l][2][0] * planeX[0] + polygons[l][2][1] * planeX[1] + polygons[l][2][2] * planeX[2], polygons[l][2][0] * planeY[0] + polygons[l][2][1] * planeY[1] + polygons[l][2][2] * planeY[2]} };
+					//Winding number algorithm used to detect if sphere is inside polygon http://geomalgorithms.com/a03-_inclusion.html
+					int cn = 0;
+					for (int j = 0; j < 3; j++)
 					{
-						//Firstly, we need to check if the sphere collides with plane that our polygon lies on
-						bool outsidePlane = false;
-						bool outsideAllVerts = false;
-						bool outsideAllEdges = false;
-						bool fullyInsidePlane = false;
-						outsidePlane = planeCollision(polygons[l], hitboxes_list[i].hitbox.sphere);
-						if (outsidePlane) continue; //If we are not colliding with plane there is no point in checking collision with polygon
-						//Now we can colide with vertex, edge or be completely inside plane
-						//To check if we are completely inside a polygon we will project plane into 2D
-						float a[3] = { polygons[l][1][0] - polygons[l][0][0] , polygons[l][1][1] - polygons[l][0][1] , polygons[l][1][2] - polygons[l][0][2] };
-						float b[3] = { polygons[l][2][0] - polygons[l][1][0] , polygons[l][2][1] - polygons[l][1][1] , polygons[l][2][2] - polygons[l][1][2] };
-						float c[3] = { polygons[l][0][0] - polygons[l][2][0] , polygons[l][0][1] - polygons[l][2][1] , polygons[l][0][2] - polygons[l][2][2] };
-						//We only need one vector, but all of them can be useful later
-						float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
-						float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
-						float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
-						float planeY[3];
-						//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
-						planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
-						planeY[1] = N[2] * planeX[0] - N[0] * planeX[2];
-						planeY[2] = N[0] * planeX[1] - N[1] * planeX[0];
-						float len = sqrt(pow(planeY[0], 2) + pow(planeY[1], 2) + pow(planeY[2], 2));
-						//Normalizing the vector
-						planeY[0] /= len;
-						planeY[1] /= len;
-						planeY[2] /= len;
-						//Projecting vertices and sphere center
-						float sphere2D[2] = { *(hitboxes_list[i].hitbox.sphere.Middle.X) * planeX[0] + *(hitboxes_list[i].hitbox.sphere.Middle.Y) * planeX[1] + *(hitboxes_list[i].hitbox.sphere.Middle.Z) * planeX[2], *(hitboxes_list[i].hitbox.sphere.Middle.X) * planeY[0] + *(hitboxes_list[i].hitbox.sphere.Middle.Y) * planeY[1] + *(hitboxes_list[i].hitbox.sphere.Middle.Z) * planeY[2] };
-						float triangle2D[3][2] = { {polygons[l][0][0] * planeX[0] + polygons[l][0][1] * planeX[1] + polygons[l][0][2] * planeX[2], polygons[l][0][0] * planeY[0] + polygons[l][0][1] * planeY[1] + polygons[l][0][2] * planeY[2]}, 
-												   {polygons[l][1][0] * planeX[0] + polygons[l][1][1] * planeX[1] + polygons[l][1][2] * planeX[2], polygons[l][1][0] * planeY[0] + polygons[l][1][1] * planeY[1] + polygons[l][1][2] * planeY[2]},
-												   {polygons[l][2][0] * planeX[0] + polygons[l][2][1] * planeX[1] + polygons[l][2][2] * planeX[2], polygons[l][2][0] * planeY[0] + polygons[l][2][1] * planeY[1] + polygons[l][2][2] * planeY[2]} };
-						//Winding number algorithm used to detect if sphere is inside polygon http://geomalgorithms.com/a03-_inclusion.html
-						int cn = 0;
-						for (int j = 0; j < 3; j++)
+						int k = j + 1;
+						if (k == 3) k = 0;
+						if (((triangle2D[j][1] <= sphere2D[1]) && (triangle2D[k][1] > sphere2D[1])) ||
+							((triangle2D[j][1] > sphere2D[1]) && (triangle2D[k][1] <= sphere2D[1])))
 						{
-							int k = j + 1;
-							if (k == 3) k = 0;
-							if (((triangle2D[j][1] <= sphere2D[1]) && (triangle2D[k][1] > sphere2D[1])) ||
-								((triangle2D[j][1] > sphere2D[1]) && (triangle2D[k][1] <= sphere2D[1])))
-							{
-								float vt = (sphere2D[1] - triangle2D[j][1]) / (triangle2D[k][1] - triangle2D[j][1]);
-								if (sphere2D[0] < triangle2D[j][0] + vt * (triangle2D[k][0] - triangle2D[j][0])) ++cn;
-							}
+							float vt = (sphere2D[1] - triangle2D[j][1]) / (triangle2D[k][1] - triangle2D[j][1]);
+							if (sphere2D[0] < triangle2D[j][0] + vt * (triangle2D[k][0] - triangle2D[j][0])) ++cn;
 						}
-						fullyInsidePlane = cn & 1;
-						//The collision with vertex is just calculating distances between vertexes and sphere center and comparing it with radius
-						bool outsideV1 = sqrt(pow(polygons[l][0][0] - *(hitboxes_list[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][0][1] - *(hitboxes_list[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][0][2] - *(hitboxes_list[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_list[i].hitbox.sphere.Radius;
-						bool outsideV2 = sqrt(pow(polygons[l][1][0] - *(hitboxes_list[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][1][1] - *(hitboxes_list[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][1][2] - *(hitboxes_list[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_list[i].hitbox.sphere.Radius;
-						bool outsideV3 = sqrt(pow(polygons[l][2][0] - *(hitboxes_list[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][2][1] - *(hitboxes_list[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][2][2] - *(hitboxes_list[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_list[i].hitbox.sphere.Radius;
-						if (outsideV1 && outsideV2 && outsideV3) outsideAllVerts = true;
-						
-						//The last one thing is to check collision with edges
-						//Here i will use function found here: https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
-						if (!intersectRaySegmentSphere(polygons[l][0], a, hitboxes_list[i].hitbox.sphere.Middle, pow(hitboxes_list[i].hitbox.sphere.Radius, 2)) &&
-							!intersectRaySegmentSphere(polygons[l][1], b, hitboxes_list[i].hitbox.sphere.Middle, pow(hitboxes_list[i].hitbox.sphere.Radius, 2)) &&
-							!intersectRaySegmentSphere(polygons[l][2], c, hitboxes_list[i].hitbox.sphere.Middle, pow(hitboxes_list[i].hitbox.sphere.Radius, 2)))
-						{
-							//sphere outside of all triangle edges
-							outsideAllEdges = true;
-						}
-						if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
-						{
-							continue;
-						}
-						collisions++;
 					}
-					if (collisions) return true;
-					else return false;
-					break;
+					fullyInsidePlane = cn & 1;
+					//The collision with vertex is just calculating distances between vertexes and sphere center and comparing it with radius
+					bool outsideV1 = sqrt(pow(polygons[l][0][0] - *(hitboxes_vector[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][0][1] - *(hitboxes_vector[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][0][2] - *(hitboxes_vector[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_vector[i].hitbox.sphere.Radius;
+					bool outsideV2 = sqrt(pow(polygons[l][1][0] - *(hitboxes_vector[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][1][1] - *(hitboxes_vector[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][1][2] - *(hitboxes_vector[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_vector[i].hitbox.sphere.Radius;
+					bool outsideV3 = sqrt(pow(polygons[l][2][0] - *(hitboxes_vector[i].hitbox.sphere.Middle.X), 2) + pow(polygons[l][2][1] - *(hitboxes_vector[i].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][2][2] - *(hitboxes_vector[i].hitbox.sphere.Middle.Z), 2)) > hitboxes_vector[i].hitbox.sphere.Radius;
+					if (outsideV1 && outsideV2 && outsideV3) outsideAllVerts = true;
+
+					//The last one thing is to check collision with edges
+					//Here i will use function found here: https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
+					if (!intersectRaySegmentSphere(polygons[l][0], a, hitboxes_vector[i].hitbox.sphere.Middle, pow(hitboxes_vector[i].hitbox.sphere.Radius, 2)) &&
+						!intersectRaySegmentSphere(polygons[l][1], b, hitboxes_vector[i].hitbox.sphere.Middle, pow(hitboxes_vector[i].hitbox.sphere.Radius, 2)) &&
+						!intersectRaySegmentSphere(polygons[l][2], c, hitboxes_vector[i].hitbox.sphere.Middle, pow(hitboxes_vector[i].hitbox.sphere.Radius, 2)))
+					{
+						//sphere outside of all triangle edges
+						outsideAllEdges = true;
+					}
+					if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
+					{
+						continue;
+					}
+					collisions++;
+				}
+				if (collisions) (*collisions_bool)[i][j - 1 - i] = true;
+				else (*collisions_bool)[i][j - 1 - i] = false;
+				break;
+				}
+				break;
 				}
 				break;
 			case 3:
-				switch (hitboxes_list[j].type)
+				switch (hitboxes_vector[j].type)
 				{
 				case 1:
+					(*collisions_bool)[i][j - 1 - i] = false;
 					break;
 				case 2:
-					break;
+				{int collisions = 0;
+				float polygons[12][3][3];
+				triangles(hitboxes_vector[i].hitbox.cuboid, polygons);
+				//We check in loop coliding with every plane of cuboid
+				for (int l = 0; l < 12; l++)
+				{
+					//Firstly, we need to check if the sphere collides with plane that our polygon lies on
+					bool outsidePlane = false;
+					bool outsideAllVerts = false;
+					bool outsideAllEdges = false;
+					bool fullyInsidePlane = false;
+					outsidePlane = planeCollision(polygons[l], hitboxes_vector[j].hitbox.sphere);
+					if (outsidePlane) continue; //If we are not colliding with plane there is no point in checking collision with polygon
+					//Now we can colide with vertex, edge or be completely inside plane
+					//To check if we are completely inside a polygon we will project plane into 2D
+					float a[3] = { polygons[l][1][0] - polygons[l][0][0] , polygons[l][1][1] - polygons[l][0][1] , polygons[l][1][2] - polygons[l][0][2] };
+					float b[3] = { polygons[l][2][0] - polygons[l][1][0] , polygons[l][2][1] - polygons[l][1][1] , polygons[l][2][2] - polygons[l][1][2] };
+					float c[3] = { polygons[l][0][0] - polygons[l][2][0] , polygons[l][0][1] - polygons[l][2][1] , polygons[l][0][2] - polygons[l][2][2] };
+					//We only need one vector, but all of them can be useful later
+					float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
+					float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
+					float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
+					float planeY[3];
+					//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
+					planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
+					planeY[1] = N[2] * planeX[0] - N[0] * planeX[2];
+					planeY[2] = N[0] * planeX[1] - N[1] * planeX[0];
+					float len = sqrt(pow(planeY[0], 2) + pow(planeY[1], 2) + pow(planeY[2], 2));
+					//Normalizing the vector
+					planeY[0] /= len;
+					planeY[1] /= len;
+					planeY[2] /= len;
+					//Projecting vertices and sphere center
+					float sphere2D[2] = { *(hitboxes_vector[j].hitbox.sphere.Middle.X) * planeX[0] + *(hitboxes_vector[j].hitbox.sphere.Middle.Y) * planeX[1] + *(hitboxes_vector[j].hitbox.sphere.Middle.Z) * planeX[2], *(hitboxes_vector[j].hitbox.sphere.Middle.X) * planeY[0] + *(hitboxes_vector[j].hitbox.sphere.Middle.Y) * planeY[1] + *(hitboxes_vector[j].hitbox.sphere.Middle.Z) * planeY[2] };
+					float triangle2D[3][2] = { {polygons[l][0][0] * planeX[0] + polygons[l][0][1] * planeX[1] + polygons[l][0][2] * planeX[2], polygons[l][0][0] * planeY[0] + polygons[l][0][1] * planeY[1] + polygons[l][0][2] * planeY[2]},
+											   {polygons[l][1][0] * planeX[0] + polygons[l][1][1] * planeX[1] + polygons[l][1][2] * planeX[2], polygons[l][1][0] * planeY[0] + polygons[l][1][1] * planeY[1] + polygons[l][1][2] * planeY[2]},
+											   {polygons[l][2][0] * planeX[0] + polygons[l][2][1] * planeX[1] + polygons[l][2][2] * planeX[2], polygons[l][2][0] * planeY[0] + polygons[l][2][1] * planeY[1] + polygons[l][2][2] * planeY[2]} };
+					//Winding number algorithm used to detect if sphere is inside polygon http://geomalgorithms.com/a03-_inclusion.html
+					int cn = 0;
+					for (int j = 0; j < 3; j++)
+					{
+						int k = j + 1;
+						if (k == 3) k = 0;
+						if (((triangle2D[j][1] <= sphere2D[1]) && (triangle2D[k][1] > sphere2D[1])) ||
+							((triangle2D[j][1] > sphere2D[1]) && (triangle2D[k][1] <= sphere2D[1])))
+						{
+							float vt = (sphere2D[1] - triangle2D[j][1]) / (triangle2D[k][1] - triangle2D[j][1]);
+							if (sphere2D[0] < triangle2D[j][0] + vt * (triangle2D[k][0] - triangle2D[j][0])) ++cn;
+						}
+					}
+					fullyInsidePlane = cn & 1;
+					//The collision with vertex is just calculating distances between vertexes and sphere center and comparing it with radius
+					bool outsideV1 = sqrt(pow(polygons[l][0][0] - *(hitboxes_vector[j].hitbox.sphere.Middle.X), 2) + pow(polygons[l][0][1] - *(hitboxes_vector[j].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][0][2] - *(hitboxes_vector[j].hitbox.sphere.Middle.Z), 2)) > hitboxes_vector[j].hitbox.sphere.Radius;
+					bool outsideV2 = sqrt(pow(polygons[l][1][0] - *(hitboxes_vector[j].hitbox.sphere.Middle.X), 2) + pow(polygons[l][1][1] - *(hitboxes_vector[j].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][1][2] - *(hitboxes_vector[j].hitbox.sphere.Middle.Z), 2)) > hitboxes_vector[j].hitbox.sphere.Radius;
+					bool outsideV3 = sqrt(pow(polygons[l][2][0] - *(hitboxes_vector[j].hitbox.sphere.Middle.X), 2) + pow(polygons[l][2][1] - *(hitboxes_vector[j].hitbox.sphere.Middle.Y), 2) + pow(polygons[l][2][2] - *(hitboxes_vector[j].hitbox.sphere.Middle.Z), 2)) > hitboxes_vector[j].hitbox.sphere.Radius;
+					if (outsideV1 && outsideV2 && outsideV3) outsideAllVerts = true;
+
+					//The last one thing is to check collision with edges
+					//Here i will use function found here: https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
+					if (!intersectRaySegmentSphere(polygons[l][0], a, hitboxes_vector[j].hitbox.sphere.Middle, pow(hitboxes_vector[j].hitbox.sphere.Radius, 2)) &&
+						!intersectRaySegmentSphere(polygons[l][1], b, hitboxes_vector[j].hitbox.sphere.Middle, pow(hitboxes_vector[j].hitbox.sphere.Radius, 2)) &&
+						!intersectRaySegmentSphere(polygons[l][2], c, hitboxes_vector[j].hitbox.sphere.Middle, pow(hitboxes_vector[j].hitbox.sphere.Radius, 2)))
+					{
+						//sphere outside of all triangle edges
+						outsideAllEdges = true;
+					}
+					if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
+					{
+						continue;
+					}
+					collisions++;
+				}
+				if (collisions) (*collisions_bool)[i][j - 1 - i] = true;
+				else (*collisions_bool)[i][j - 1 - i] = false;
+				break; }
 				case 3:
-					return false;
+					(*collisions_bool)[i][j - 1 - i] = false;
 					break;
 				}
 			}

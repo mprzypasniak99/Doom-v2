@@ -38,6 +38,7 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "Prop.h"
 #include "Foe.h"
 #include "Projectile.h"
+//#include "coldet.h"
 
 float speed_x=0;
 float speed_y=0;
@@ -46,7 +47,7 @@ float aspectRatio=1;
 Model wall = Model(myWallVertices, myWallColors, myWallNormals, myWallTexCoords, 6);
 
 DoomGuy Guy;
-
+ColDet* detector;
 Model* gun;
 Model* eye;
 Model* projectile;
@@ -69,6 +70,15 @@ glm::vec3 cDir = glm::vec3(0.f, 0.f, 10.f);
 
 float lastX = 250.0f, lastY = 250.0f, xoffset = 0.0f, yoffset = 0.0f, yaw = -90.0f, pitch = 0.0f, camSpeed = 0.1f;
 bool first = true;
+
+std::vector<std::vector<bool>> collisions;
+
+float* a;
+float* b;
+float* c;
+float A = -1;
+float B = -1;
+float C = -1;
 
 
 //Odkomentuj, żeby rysować kostkę
@@ -151,22 +161,29 @@ void test_shot(glm::mat4 V)
 {
 	if (shoot)
 	{
-		glm::vec4 mov = glm::transpose(V) * ((V * glm::vec4(0.f, 0.f, 1.f, 1.f)) * -1.f); 
-		// vector from point (0,0,1,1) in world space to the camera
-		glm::mat4 pos = glm::translate(glm::mat4(1.f), glm::vec3(mov.x, mov.y, mov.z));
+		glm::mat4 pos = glm::translate(glm::mat4(1.f), cam.getPos());
 		// moving projectile to point (0,0,1,1) in eye space
-		glm::vec4 posV = V * pos[3];
-		// position of projectile in eye space
 
-		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(V[2].x, V[2].z)));
-		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(V[2].y, V[2].z)));
+		glm::vec4 dir = glm::vec4(cam.getDir(), 0.f);
+		// direction in which projectile will fly towards
+
+		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(dir.x, dir.z)));
+		
 		// angles by which projectile will be rotated to start facing the camera
 
-		pos = glm::rotate(pos, angleY, glm::vec3(0.f, 1.f, 0.f));
+		pos = glm::rotate(pos, -angleY, glm::vec3(0.f, 1.f, 0.f));
+
+		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(dir.y, dir.z)));
+
 		pos = glm::rotate(pos, -angleX, glm::vec3(1.f, 0.f, 0.f));
 
-		t = new Projectile(projectile, pos, -pos[2], 2.f, 5.f);
+		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir).xyz));
+
+		t = new Projectile(projectile, pos, dir, 2.f, 5.f);
 		bullets.push_back(t);
+		detector->addvModel(t->getPosX(), t->getPosY(), t->getPosZ(), 0.249151);
+		collisions[0].push_back(false);
+		collisions[1].push_back(false);
 		shoot = false;
 	}
 }
@@ -197,9 +214,19 @@ void initOpenGLProgram(GLFWwindow* window) {
 	gun->scale(30.f);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
-	foe = new Foe(eye, glm::mat4(1.f), 1.f);
+	foe = new Foe(eye, glm::mat4(1.f), 1.f, projectile);
 	foe->addRoutePoint(glm::vec4(0.f, 0.f, -10.f, 1.f));
 	foe->addRoutePoint(glm::vec4(5.f, 0.f, 5.f, 1.f));
+	detector = new ColDet(&collisions);
+	detector->addvModel(foe->getPosX(), foe->getPosY(), foe->getPosZ(), 1.7747);
+	collisions.push_back(std::vector<bool>());
+	a = &A;
+	b = &B;
+	c = &C;
+	detector->addvModel(a, b, c, 2, 2, 2);
+	collisions.push_back(std::vector<bool>());
+	collisions[0].push_back(false);
+	system("CLS");
 }
 
 
@@ -235,8 +262,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	Mw = glm::rotate(Mw, PI / 2, glm::vec3(0.f, 0.f, 1.f));
 	glm::mat4 t;
 
-	glm::mat4 MDoomGuy = glm::mat4(1.0f); //Tymczasowy DoomGuy, bo przeca będzie razem z kamerą :)
-	//MDoomGuy = glm::translate(MDoomGuy, glm::vec3(BaseCam.x + 0.1, BaseCam.y - 0.6, BaseCam.z - 1));
+	glm::mat4 MDoomGuy = glm::mat4(1.0f);
 	MDoomGuy = glm::rotate(MDoomGuy, PI, glm::vec3(0.f, 1.f, 0.f));
 	MDoomGuy = glm::rotate(MDoomGuy, glm::radians(yaw + 90), glm::vec3(0.f, -1.f, 0.f));
 	MDoomGuy = glm::rotate(MDoomGuy, glm::radians(pitch), glm::vec3(-1.f, 0.f, 0.f));
@@ -290,7 +316,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	t = foe->getPos();
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(t));
 	foe->draw();
-
+	foe->shoot(&bullets, &collisions, detector, glm::vec4(cam.getPos(), 1.f));
 	test_shot(V);
 
 	for (int i = 0; i < bullets.size(); i++)
@@ -305,6 +331,9 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 		{
 			delete bullets[i];
 			bullets.erase(bullets.begin() + i);
+			collisions[0].erase(collisions[0].begin() + 1 + i);
+			collisions[1].erase(collisions[1].begin() + i);
+			detector->erasevModel(2 + i);
 		}
 		
 	}
@@ -357,6 +386,16 @@ int main(void)
         angle_x+=speed_x*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
         angle_y+=speed_y*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
         glfwSetTime(0); //Zeruj timer
+		system("CLS");
+		detector->detector();
+		for (int i = 0; i < collisions.size(); i++)
+		{
+			for (int j = 0; j < collisions[i].size(); j++)
+			{
+				std::cout << collisions[i][j];
+			}
+			std::cout << "\n";
+		}
 		drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
 	}

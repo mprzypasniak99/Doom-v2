@@ -4,6 +4,7 @@
 
 #include "model.h"
 #include <iostream>
+#include <vector>
 
 struct Point
 {
@@ -70,18 +71,25 @@ struct Hitbox
 class ColDet
 {
 private:
-	Hitbox* hitboxes_list;
-	int next_free;
+	std::vector<Hitbox> hitboxes_vector;
+	std::vector<std::vector<bool>>* collisions_bool;
+	//Hitbox* hitboxes_list;
+	//int next_free;
 public:
-	ColDet(int model_count);
-	void addModel(float* x, float* y, float* z);
+	ColDet(std::vector<std::vector<bool>>* collisions);
+	//ColDet(int model_count);
+	/*void addModel(float* x, float* y, float* z);
 	void addModel(float* x, float* y, float* z, float radius);
-	void addModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift);
+	void addModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift);*/
+	void addvModel(float* x, float* y, float* z);
+	void addvModel(float* x, float* y, float* z, float radius);
+	void addvModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift);
+	void erasevModel(int shift);
 	void triangles(Cuboid model, float triangles[12][3][3]);
 	float* normal(float* A, float* B, float* C);
 	float distance(Point a, Point b);
 	bool planeCollision(float triangles[3][3], Sphere sphere);
-	bool detector();
+	void detector();
 	bool intersectRaySegmentSphere(float o[3], float d[3], Point so, float radius2);
 };
 #endif // !COLDET_H

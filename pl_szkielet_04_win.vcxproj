@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hpp" />
+    <ClInclude Include="coldet.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Foe.h" />
     <ClInclude Include="lodepng.h" />
@@ -34,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="coldet.cpp" />
     <ClCompile Include="Foe.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main_file.cpp" />
