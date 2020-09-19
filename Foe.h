@@ -30,5 +30,6 @@ public:
 	void updatePos(glm::mat4 V);
 
 	void shoot(std::vector<Projectile*>* bulletTab, std::vector<std::vector<bool>>* col, ColDet* det, glm::vec4 playerPos);
+
 };
 
