@@ -51,8 +51,6 @@ Model* eye;
 Model* projectile;
 Model* level;
 
-Foe* foe;
-
 ShaderProgram *sp;
 
 GLuint tex0;
@@ -60,7 +58,7 @@ GLuint tex0;
 bool key_dir[4] = { false }; //zmienne używane do poruszania kamery
 bool shoot = false;
 
-Projectile* t;
+//Projectile* t;
 Camera cam;
 glm::vec3 cPos = glm::vec3(0.f, 0.f, -10.f);
 glm::vec3 cDir = glm::vec3(0.f, 0.f, 10.f);
@@ -201,7 +199,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	OG.addFoe(Foe(eye, glm::mat4(1.f), 1.f, projectile));
 	OG.addRouteForFoe(0, glm::vec4(0.f, 0.f, -10.f, 1.f));
 	OG.addRouteForFoe(0, glm::vec4(5.f, 0.f, 5.f, 1.f));
-	system("CLS");
+	OG.addSurroundingElement(Hitbox(Base(Cuboid(-1, -1, -1, 2, 2, 2)), 3));
 }
 
 
@@ -211,7 +209,6 @@ void freeOpenGLProgram(GLFWwindow* window) {
 	delete projectile;
 	delete gun;
 	delete eye;
-	//delete foe;
 	delete sp;
 	glDeleteTextures(1, &tex0);
 }
@@ -274,7 +271,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, tex0);
 
- //   glDrawArrays(GL_TRIANGLES,0,vertexCount); //Narysuj obiekt
+	//glDrawArrays(GL_TRIANGLES,0,vertexCount); //Narysuj obiekt
 
 
 
@@ -336,7 +333,7 @@ int main(void)
 		system("CLS");
 		cam.UpdateCam(key_dir);
 		OG.positionUpdate(cam.GetViewMatrix());
-		OG.collisionsHandling();
+		OG.collisionsHandling(cam.getPos(), window, &cam);
 		drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
 	}
