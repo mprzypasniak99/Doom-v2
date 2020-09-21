@@ -49,6 +49,7 @@ Model wall = Model(myWallVertices, myWallColors, myWallNormals, myWallTexCoords,
 Model* gun;
 Model* eye;
 Model* projectile;
+Model* level;
 
 ShaderProgram *sp;
 
@@ -194,6 +195,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	gun->scale(30.f);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
+	level = new Model("models/Level/level.obj", "metal.png");
 	OG.addFoe(Foe(eye, glm::mat4(1.f), 1.f, projectile));
 	OG.addRouteForFoe(0, glm::vec4(0.f, 0.f, -10.f, 1.f));
 	OG.addRouteForFoe(0, glm::vec4(5.f, 0.f, 5.f, 1.f));
@@ -221,7 +223,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
 
 	glm::mat4 V = cam.GetViewMatrix();
-    glm::mat4 P=glm::perspective(50.0f*PI/180.0f, aspectRatio, 0.01f, 50.0f); //Wylicz macierz rzutowania
+    glm::mat4 P=glm::perspective(50.0f*PI/180.0f, aspectRatio, 0.01f, 100.0f); //Wylicz macierz rzutowania
 
     glm::mat4 M=glm::mat4(1.0f);
 	M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Wylicz macierz modelu
@@ -238,7 +240,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	MDoomGuy = glm::translate(MDoomGuy, glm::vec3(-MDoomGuy[3][0] + V[3][0] - 0.1f, MDoomGuy[3][1] - V[3][1] - 0.6f, -MDoomGuy[3][2] + V[3][2] + 1.f));
 
 
-
+	float lights[8] = { 0.f, 5.f, 2.f, 1.f, 10.f, 5.f, 50.f, 1.f };
 
 
     sp->use();//Aktywacja programu cieniującego
@@ -246,14 +248,18 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     glUniformMatrix4fv(sp->u("P"),1,false,glm::value_ptr(P));
     glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
     glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
-	glUniform4f(sp->u("ls"), 0, 3, 0, 1);
+	glUniform4fv(sp->u("ls"), 2, lights);
 	glUniform1i(sp->u("textureMap0"), 0); //przypisanie zerowej jednostki teksturującej do zmiennej jednorodnej
 
+	
     glEnableVertexAttribArray(1);  //Włącz przesyłanie danych do atrybutu vertex
 	glEnableVertexAttribArray(2);  //Włącz przesyłanie danych do atrybutu vertex
 	glEnableVertexAttribArray(3);  //Włącz przesyłanie danych do atrybutu vertex
 	glEnableVertexAttribArray(4);  //Włącz przesyłanie danych do atrybutu vertex
     
+
+	level->draw();
+	
 	//glVertexAttribPointer(1,4,GL_FLOAT,false,0,vertices); //Wskaż tablicę z danymi dla atrybutu vertex
 	//
 	//glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, colors);

@@ -4,12 +4,12 @@ void Camera::UpdateCam(bool tab[4]) //trzeba przekazać do funkcji tablicę wyni
 {
 	if (tab[up])
 	{
-		cPos += camSpeed * cDir;
+		cPos += camSpeed * glm::normalize(glm::vec3(cDir.x, 0.f, cDir.z));
 		//cPos.y -= camSpeed * cDir.y;
 	}
 	if (tab[down])
 	{
-		cPos -= camSpeed * cDir;
+		cPos -= camSpeed * glm::normalize(glm::vec3(cDir.x, 0.f, cDir.z));
 		//cPos.y += camSpeed * cDir.y;
 	}
 	if (tab[left])

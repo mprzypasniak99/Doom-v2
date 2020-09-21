@@ -177,7 +177,7 @@ void organiser::drawAllElements(ShaderProgram* sp, glm::vec4 ppos)
 	{
 		glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(foes[i].getPos()));
 		foes[i].draw();
-		shoot(foes[i], ppos);
+		shoot(&foes[i], ppos);
 	}
 	for (int i = 0; i < player_bullets.size(); i++)
 	{
@@ -196,21 +196,20 @@ void organiser::addRouteForFoe(int fn, glm::vec4 point)
 }
 
 //debugging
-
-void organiser::shoot(Foe foe, glm::vec4 playerPos)
+void organiser::shoot(Foe * foe, glm::vec4 playerPos)
 {
-	glm::vec4 dist = playerPos - foe.getPos()[3]; // computing position in eye space
+	glm::vec4 dist = playerPos - foe->getPos()[3]; // computing position in eye space
 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-	std::chrono::duration<float> elapsedTime = now - foe.lS();
+	std::chrono::duration<float> elapsedTime = now - foe->lS();
 
 	if (glm::length(dist) < 20 && elapsedTime.count() >= 2.f)
 	{
-		foe.setlS(now);
+		foe->setlS(now);
 
 		glm::vec4 dir = glm::normalize(dist);
 
-		glm::mat4 pos = foe.getPos();
+		glm::mat4 pos = foe->getPos();
 
 		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(dir.x, dir.z)));
 
@@ -224,7 +223,7 @@ void organiser::shoot(Foe foe, glm::vec4 playerPos)
 
 		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir)));
 
-		addFoeBullet(Projectile(foe.returnBullet(), pos, dir, 2.f, 5.f));
+		addFoeBullet(Projectile(foe->returnBullet(), pos, dir, 2.f, 5.f));
 	}
 }
 
