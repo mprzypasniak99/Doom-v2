@@ -1,6 +1,6 @@
 /*
 Header file defining basic structures and classes used to detect and deal with collisions.
-v2.0 Borubash
+v2.2 Borubash
 */
 
 #pragma once
