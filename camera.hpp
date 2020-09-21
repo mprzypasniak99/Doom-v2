@@ -22,7 +22,7 @@ private:
 public:
 	Camera()
 	{
-		cPos = glm::vec3(0.f, 0.f, 10.f);
+		cPos = glm::vec3(0.f, 2.f, 10.f);
 		cDir = glm::vec3(0.f, 0.f, -1.f);
 		cUp = glm::vec3(0.f, 1.f, 0.f);
 		cDirX = glm::vec3(1.f, 0.f, 0.f);

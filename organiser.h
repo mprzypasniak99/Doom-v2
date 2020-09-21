@@ -30,7 +30,7 @@ private:
 	void foes_foe_bullets(); //foes may hit each other so we have to handle this collision (only if don't want foe bullets fly through foes)
 	//void foes_surrounding(); under construction
 	void bullets_surrounding(); //destroying bullets after hitting surrounding (but creating penetrable surrounding is pretty simple i think)
-	void shoot(Foe foe, glm::vec4 playerPos); //experimental try to debug program
+	void shoot(Foe * foe, glm::vec4 playerPos); //experimental try to debug program
 public:
 	organiser(Hitbox player, Hitbox foe, Hitbox bullet);
 	void addFoe(Foe foe);
