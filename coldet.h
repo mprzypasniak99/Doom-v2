@@ -1,6 +1,6 @@
 /*
 Header file defining basic structures and classes used to detect and deal with collisions.
-v1.0 Borubash
+v2.0 Borubash
 */
 
 #pragma once
@@ -97,7 +97,7 @@ public:
 	float* normal(float* A, float* B, float* C);
 	float distance(Point a, Point b);
 	bool planeCollision(float triangles[3][3], Sphere sphere);
-	bool detector(Hitbox first, Hitbox second);
+	bool detector(Hitbox first, Hitbox second, float norm[4]);
 	bool intersectRaySegmentSphere(float o[3], float d[3], Point so, float radius2);
 };
 #endif // !COLDET_H

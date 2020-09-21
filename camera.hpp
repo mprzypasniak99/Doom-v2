@@ -37,6 +37,8 @@ public:
 	glm::mat4 GetViewMatrix();
 	glm::vec3 getPos();
 	glm::vec3 getDir();
+	float getCamSpeed();
+	void UpdatePos(float* shift);
 };
 
 #endif // !CAMERA_HPP_INCLUDED

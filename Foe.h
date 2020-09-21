@@ -13,6 +13,7 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> lastShoot;
 	float speed;
 	Model* bullet;
+	int health = 4;
 
 public:
 	Foe(Model* m, glm::mat4 pos, float s, Model* b) : Prop(m, pos)
@@ -28,6 +29,8 @@ public:
 
 	void updatePos(glm::mat4 V);
 
+	void updatePos(float* shift);
+
 	//void shoot(glm::vec4 playerPos);
 
 	void kill_this_bastard();
@@ -37,5 +40,7 @@ public:
 	std::chrono::time_point<std::chrono::system_clock> lS();
 	void setlS(std::chrono::time_point<std::chrono::system_clock> time);
 	Model* returnBullet();
+
+	float getSpeed();
 };
 

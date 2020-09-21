@@ -105,3 +105,13 @@ Model* Foe::returnBullet()
 {
 	return bullet;
 }
+
+float Foe::getSpeed()
+{
+	return speed;
+}
+
+void Foe::updatePos(float* shift)
+{
+	position = glm::translate(position, glm::vec3(shift[0], shift[1], shift[2]));
+}

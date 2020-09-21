@@ -1,13 +1,13 @@
 /*
 Implementation of functions from header.
-v1.0 Borubash
+v2.2 Borubash
 */
 
 #include "coldet.h"
 #include <math.h>
 
 
-bool ColDet::detector(Hitbox first, Hitbox second)
+bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 {
 	switch (first.type)
 	{
@@ -32,7 +32,8 @@ bool ColDet::detector(Hitbox first, Hitbox second)
 			return distance(first.hitbox.sphere.Middle, second.hitbox.sphere.Middle) <= first.hitbox.sphere.Radius + second.hitbox.sphere.Radius;
 			break;
 		case 3:
-		{int collisions = 0;
+		{bool collisions = false;
+		bool if_collision = false;
 		float polygons[12][3][3];
 		triangles(second.hitbox.cuboid, polygons);
 		//We check in loop coliding with every plane of cuboid
@@ -100,11 +101,22 @@ bool ColDet::detector(Hitbox first, Hitbox second)
 			}
 			if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
 			{
-				continue;
+				collisions = false;
 			}
-			collisions++;
+			else collisions = true;
+			if (collisions)
+			{
+				if_collision = true;
+				if (norm != nullptr)
+				{
+					norm[0] += N[0];
+					norm[1] += N[1];
+					norm[2] += N[2];
+					norm[3]++;
+				}
+			}
 		}
-		if (collisions) return true;
+		if (if_collision) return true;
 		else return false;
 		break;
 		}
@@ -118,7 +130,8 @@ bool ColDet::detector(Hitbox first, Hitbox second)
 			return false;
 			break;
 		case 2:
-		{int collisions = 0;
+		{bool collisions = false;
+		bool if_collision = false;
 		float polygons[12][3][3];
 		triangles(first.hitbox.cuboid, polygons);
 		//We check in loop coliding with every plane of cuboid
@@ -186,17 +199,28 @@ bool ColDet::detector(Hitbox first, Hitbox second)
 			}
 			if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
 			{
-				continue;
+				collisions = false;
 			}
-			collisions++;
+			else collisions = true;
+			if (collisions)
+			{
+				if_collision = true;
+				if (norm != nullptr)
+				{
+					norm[0] += N[0];
+					norm[1] += N[1];
+					norm[2] += N[2];
+					norm[3]++;
+				}
+			}
 		}
-		if (collisions) return true;
+		if (if_collision) return true;
 		else return false;
-		break; }
-		case 3:
-			return false;
-			break;
+		break;
 		}
+		break;
+		}
+		break;
 	}
 }
 

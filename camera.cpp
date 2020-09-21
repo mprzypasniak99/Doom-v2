@@ -46,3 +46,15 @@ glm::vec3 Camera::getDir()
 {
 	return cDir;
 }
+
+float Camera::getCamSpeed()
+{
+	return camSpeed;
+}
+
+void Camera::UpdatePos(float* shift)
+{
+	cPos.x += shift[0];
+	cPos.y += shift[1];
+	cPos.z += shift[2];
+}
