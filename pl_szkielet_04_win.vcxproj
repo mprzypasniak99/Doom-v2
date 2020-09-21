@@ -27,6 +27,7 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="myCube.h" />
     <ClInclude Include="myTeapot.h" />
+    <ClInclude Include="organiser.h" />
     <ClInclude Include="OBJ_Loader.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Prop.h" />
@@ -40,6 +41,7 @@
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main_file.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="organiser.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Prop.cpp" />
     <ClCompile Include="shaderprogram.cpp" />

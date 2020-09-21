@@ -1,12 +1,14 @@
 /*
 Header for class that will keep all rendering and collision objects and handle collisions for specific objects, updating and drawing them.
-version 0.4
+version 0.45b
 */
 #pragma once
 #ifndef ORGANISER_H
 #define ORGANISER_H
 
 #include <Foe.h>
+#include "coldet.h"
+#include "shaderprogram.h"
 
 class organiser
 {
@@ -28,6 +30,7 @@ private:
 	void foes_foe_bullets(); //foes may hit each other so we have to handle this collision (only if don't want foe bullets fly through foes)
 	//void foes_surrounding(); under construction
 	void bullets_surrounding(); //destroying bullets after hitting surrounding (but creating penetrable surrounding is pretty simple i think)
+	void shoot(Foe foe, glm::vec4 playerPos); //experimental try to debug program
 public:
 	organiser(Hitbox player, Hitbox foe, Hitbox bullet);
 	void addFoe(Foe foe);
@@ -36,6 +39,7 @@ public:
 	void addSurroundingElement(Hitbox element);
 	void positionUpdate(glm::mat4 V); //A few updates from Majkel needed (mainly for bullets after their life span ends without hitting anything)
 	void collisionsHandling(); //One Function to rule them all, One Function to find them, One Function to bring them all, and in the darkness bind them,
-	void drawAllElements(); //if you like drawing, it's function for you 
+	void drawAllElements(ShaderProgram* sp, glm::vec4 ppos); //if you like drawing, it's function for you
+	void addRouteForFoe(int fn, glm::vec4 point); //go to Foe -- addRoutePoint, fn is just foe number in the vector
 };
 #endif

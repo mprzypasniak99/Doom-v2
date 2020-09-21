@@ -1,21 +1,25 @@
+/*
+Header file defining basic structures and classes used to detect and deal with collisions.
+v1.0 Borubash
+*/
+
 #pragma once
 #ifndef COLDET_H
 #define COLDET_H
 
-#include "model.h"
 #include <iostream>
 #include <vector>
 
 struct Point
 {
-	float *X;
-	float *Y;
-	float *Z;
+	float X;
+	float Y;
+	float Z;
 	Point()
 	{
-		X = nullptr; Y = nullptr; Z = nullptr;
+		X = 0; Y = 0; Z = 0;
 	}
-	Point(float* x, float* y, float* z)
+	Point(float x, float y, float z)
 	{
 		X = x; Y = y; Z = z;
 	}
@@ -25,7 +29,7 @@ struct Sphere
 {
 	Point Middle;
 	float Radius;
-	Sphere(float* x, float* y, float* z, float radius)
+	Sphere(float x, float y, float z, float radius)
 	{
 		Middle = Point(x, y, z);
 		Radius = radius;
@@ -38,14 +42,14 @@ struct Cuboid
 	float X_shift;
 	float Y_shift;
 	float Z_shift;
-	Cuboid(float* x, float* y, float* z, float shift)
+	Cuboid(float x, float y, float z, float shift)
 	{
 		one_vertex = Point(x, y, z);
 		X_shift = shift;
 		Y_shift = shift;
 		Z_shift = shift;
 	}
-	Cuboid(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift)
+	Cuboid(float x, float y, float z, float x_shift, float y_shift, float z_shift)
 	{
 		one_vertex = Point(x, y, z);
 		X_shift = x_shift;
@@ -58,38 +62,42 @@ union Base
 {
 	Point point;
 	Sphere sphere;
-	Cuboid cuboid;
-	Base(){}
+	Cuboid cuboid = Cuboid(0, 0, 0, 0);
+	Base() {}
+	Base(Point p)
+	{
+		point = p;
+	}
+	Base(Sphere s)
+	{
+		sphere = s;
+	}
+	Base(Cuboid c)
+	{
+		cuboid = c;
+	}
 };
 struct Hitbox
 {
 	Base hitbox;
 	int type; // 1 - point, 2 - sphere, 3 - cuboid
 	Hitbox() {}
+	Hitbox(Base b, int t)
+	{
+		hitbox = b;
+		type = t;
+	}
 };
 
 class ColDet
 {
-private:
-	std::vector<Hitbox> hitboxes_vector;
-	std::vector<std::vector<bool>>* collisions_bool;
-	//Hitbox* hitboxes_list;
-	//int next_free;
 public:
-	ColDet(std::vector<std::vector<bool>>* collisions);
-	//ColDet(int model_count);
-	/*void addModel(float* x, float* y, float* z);
-	void addModel(float* x, float* y, float* z, float radius);
-	void addModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift);*/
-	void addvModel(float* x, float* y, float* z);
-	void addvModel(float* x, float* y, float* z, float radius);
-	void addvModel(float* x, float* y, float* z, float x_shift, float y_shift, float z_shift);
-	void erasevModel(int shift);
+	ColDet() {}
 	void triangles(Cuboid model, float triangles[12][3][3]);
 	float* normal(float* A, float* B, float* C);
 	float distance(Point a, Point b);
 	bool planeCollision(float triangles[3][3], Sphere sphere);
-	void detector();
+	bool detector(Hitbox first, Hitbox second);
 	bool intersectRaySegmentSphere(float o[3], float d[3], Point so, float radius2);
 };
 #endif // !COLDET_H
