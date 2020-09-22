@@ -57,7 +57,9 @@ bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 			//We only need one vector, but all of them can be useful later
 			float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
 			float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
-			float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
+			float N[3];
+			normal(polygons[l][0], polygons[l][1], polygons[l][2], &N[0], &N[1], &N[2]);
+			if (N[1] != 0) return false;
 			float planeY[3];
 			//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
 			planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
@@ -147,7 +149,10 @@ bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 			//We only need one vector, but all of them can be useful later
 			float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
 			float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
-			float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
+			float N[3];
+			normal(polygons[l][0], polygons[l][1], polygons[l][2], &N[0], &N[1], &N[2]);
+			if (N[1] != 0) return false;
+
 			float planeY[3];
 			//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
 			planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
@@ -213,6 +218,106 @@ bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 		else return false;
 		break;
 		}
+		case 5:
+		{bool collisions = false;
+		bool if_collision = false;
+		float polygons[3][3];
+		polygons[0][0] = second.hitbox.triangle.one.X;
+		polygons[0][1] = second.hitbox.triangle.one.Y;
+		polygons[0][2] = second.hitbox.triangle.one.Z;
+
+		polygons[1][0] = second.hitbox.triangle.two.X;
+		polygons[1][1] = second.hitbox.triangle.two.Y;
+		polygons[1][2] = second.hitbox.triangle.two.Z;
+
+		polygons[2][0] = second.hitbox.triangle.three.X;
+		polygons[2][1] = second.hitbox.triangle.three.Y;
+		polygons[2][2] = second.hitbox.triangle.three.Z;
+		//triangles(second.hitbox.plane, polygons);
+		//We check in loop coliding with every plane of cuboid
+			//Firstly, we need to check if the sphere collides with plane that our polygon lies on
+			bool outsidePlane = false;
+			bool outsideAllVerts = false;
+			bool outsideAllEdges = false;
+			bool fullyInsidePlane = false;
+			outsidePlane = planeCollision(polygons, first.hitbox.sphere);
+			if (outsidePlane) return false; //If we are not colliding with plane there is no point in checking collision with polygon
+			//Now we can colide with vertex, edge or be completely inside plane
+			//To check if we are completely inside a polygon we will project plane into 2D
+			float a[3] = { polygons[1][0] - polygons[0][0] , polygons[1][1] - polygons[0][1] , polygons[1][2] - polygons[0][2] };
+			float b[3] = { polygons[2][0] - polygons[1][0] , polygons[2][1] - polygons[1][1] , polygons[2][2] - polygons[1][2] };
+			float c[3] = { polygons[0][0] - polygons[2][0] , polygons[0][1] - polygons[2][1] , polygons[0][2] - polygons[2][2] };
+			//We only need one vector, but all of them can be useful later
+			float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
+			float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
+			float N[3];
+			normal(polygons[0], polygons[1], polygons[2], &N[0], &N[1], &N[2]);
+			//if (N[1] != 0) return false;
+			float planeY[3];
+			//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
+			planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
+			planeY[1] = N[2] * planeX[0] - N[0] * planeX[2];
+			planeY[2] = N[0] * planeX[1] - N[1] * planeX[0];
+			float len = sqrt(pow(planeY[0], 2) + pow(planeY[1], 2) + pow(planeY[2], 2));
+			//Normalizing the vector
+			planeY[0] /= len;
+			planeY[1] /= len;
+			planeY[2] /= len;
+			//Projecting vertices and sphere center
+			float sphere2D[2] = { first.hitbox.sphere.Middle.X * planeX[0] + first.hitbox.sphere.Middle.Y * planeX[1] + first.hitbox.sphere.Middle.Z * planeX[2], first.hitbox.sphere.Middle.X * planeY[0] + first.hitbox.sphere.Middle.Y * planeY[1] + first.hitbox.sphere.Middle.Z * planeY[2] };
+			float triangle2D[3][2] = { {polygons[0][0] * planeX[0] + polygons[0][1] * planeX[1] + polygons[0][2] * planeX[2], polygons[0][0] * planeY[0] + polygons[0][1] * planeY[1] + polygons[0][2] * planeY[2]},
+									   {polygons[1][0] * planeX[0] + polygons[1][1] * planeX[1] + polygons[1][2] * planeX[2], polygons[1][0] * planeY[0] + polygons[1][1] * planeY[1] + polygons[1][2] * planeY[2]},
+									   {polygons[2][0] * planeX[0] + polygons[2][1] * planeX[1] + polygons[2][2] * planeX[2], polygons[2][0] * planeY[0] + polygons[2][1] * planeY[1] + polygons[2][2] * planeY[2]} };
+			//Winding number algorithm used to detect if sphere is inside polygon http://geomalgorithms.com/a03-_inclusion.html
+			int cn = 0;
+			for (int j = 0; j < 3; j++)
+			{
+				int k = j + 1;
+				if (k == 3) k = 0;
+				if (((triangle2D[j][1] <= sphere2D[1]) && (triangle2D[k][1] > sphere2D[1])) ||
+					((triangle2D[j][1] > sphere2D[1]) && (triangle2D[k][1] <= sphere2D[1])))
+				{
+					float vt = (sphere2D[1] - triangle2D[j][1]) / (triangle2D[k][1] - triangle2D[j][1]);
+					if (sphere2D[0] < triangle2D[j][0] + vt * (triangle2D[k][0] - triangle2D[j][0])) ++cn;
+				}
+			}
+			fullyInsidePlane = cn & 1;
+			//The collision with vertex is just calculating distances between vertexes and sphere center and comparing it with radius
+			bool outsideV1 = sqrt(pow(polygons[0][0] - first.hitbox.sphere.Middle.X, 2) + pow(polygons[0][1] - first.hitbox.sphere.Middle.Y, 2) + pow(polygons[0][2] - first.hitbox.sphere.Middle.Z, 2)) > first.hitbox.sphere.Radius;
+			bool outsideV2 = sqrt(pow(polygons[1][0] - first.hitbox.sphere.Middle.X, 2) + pow(polygons[1][1] - first.hitbox.sphere.Middle.Y, 2) + pow(polygons[1][2] - first.hitbox.sphere.Middle.Z, 2)) > first.hitbox.sphere.Radius;
+			bool outsideV3 = sqrt(pow(polygons[2][0] - first.hitbox.sphere.Middle.X, 2) + pow(polygons[2][1] - first.hitbox.sphere.Middle.Y, 2) + pow(polygons[2][2] - first.hitbox.sphere.Middle.Z, 2)) > first.hitbox.sphere.Radius;
+			if (outsideV1 && outsideV2 && outsideV3) outsideAllVerts = true;
+
+			//The last one thing is to check collision with edges
+			//Here i will use function found here: https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
+			if (!intersectRaySegmentSphere(polygons[0], a, first.hitbox.sphere.Middle, pow(first.hitbox.sphere.Radius, 2)) &&
+				!intersectRaySegmentSphere(polygons[1], b, first.hitbox.sphere.Middle, pow(first.hitbox.sphere.Radius, 2)) &&
+				!intersectRaySegmentSphere(polygons[2], c, first.hitbox.sphere.Middle, pow(first.hitbox.sphere.Radius, 2)))
+			{
+				//sphere outside of all triangle edges
+				outsideAllEdges = true;
+			}
+			//std::cout << outsideAllVerts << outsideAllEdges << fullyInsidePlane << "\n";
+			if(!fullyInsidePlane) //if (outsideAllVerts && outsideAllEdges && !fullyInsidePlane)
+			{
+				collisions = false;
+			}
+			else collisions = true;
+			if (collisions)
+			{
+				if_collision = true;
+				if (norm != nullptr)
+				{
+					norm[0] += N[0];
+					norm[1] += N[1];
+					norm[2] += N[2];
+					norm[3]++;
+				}
+			}
+		if (if_collision) return true;
+		else return false;
+		break;
+		}
 		break;
 		}
 		break;
@@ -245,7 +350,9 @@ bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 			//We only need one vector, but all of them can be useful later
 			float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
 			float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
-			float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
+			float N[3];
+			normal(polygons[l][0], polygons[l][1], polygons[l][2], &N[0], &N[1], &N[2]);
+			if (N[1] != 0) return false;
 			float planeY[3];
 			//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
 			planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
@@ -346,7 +453,10 @@ bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 				//We only need one vector, but all of them can be useful later
 				float alen = sqrt(pow(a[0], 2) + pow(a[1], 2) + pow(a[2], 2));
 				float planeX[3] = { a[0] / alen, a[1] / alen, a[2] / alen }; //normalizing one of vectors to work as an axis
-				float* N = normal(polygons[l][0], polygons[l][1], polygons[l][2]);
+				float N[3];
+				normal(polygons[l][0], polygons[l][1], polygons[l][2], &N[0], &N[1], &N[2]);
+				std::cout << N[0] << " " << N[1] << " " << N[2] << "\n";
+				if (N[1] != 0) return false;
 				float planeY[3];
 				//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
 				planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
@@ -618,7 +728,7 @@ void ColDet::triangles(Cuboid model, float triangles[12][3][3])
 	triangles[11][2][2] = vertices[6][2];
 }
 
-float* ColDet::normal(float* A, float* B, float* C)
+void ColDet::normal(float A[3], float B[3], float C[3], float* a, float* b, float* c)
 {
 	float AB[3];
 	float AC[3];
@@ -638,7 +748,9 @@ float* ColDet::normal(float* A, float* B, float* C)
 	normal[0] /= len;
 	normal[1] /= len;
 	normal[2] /= len;
-	return normal;
+	*a = normal[0];
+	*b = normal[1];
+	*c = normal[2];
 }
 
 float ColDet::distance(Point A, Point B)
@@ -652,12 +764,14 @@ float ColDet::distance(Point A, Point B)
 bool ColDet::planeCollision(float triangles[3][3], Sphere sphere)
 {
 	//Ax + By + Cz + D = 0 - plane equation, D is equal to -P * N (dot product) where P is the average of vertices (center of gravity) and A B C are just normal vector coordinates
-	float* N = normal(triangles[0], triangles[1], triangles[2]);
-	float P[3] = { triangles[0][0] + triangles[1][0] + triangles[2][0], triangles[0][1] + triangles[1][1] + triangles[2][1], triangles[0][2] + triangles[1][2] + triangles[2][2] };
+	float N[3];
+	normal(triangles[0], triangles[1], triangles[2], &N[0], &N[1], &N[2]);
+	float P[3] = { (triangles[0][0] + triangles[1][0] + triangles[2][0]) / 3.f, (triangles[0][1] + triangles[1][1] + triangles[2][1]) / 3.f, (triangles[0][2] + triangles[1][2] + triangles[2][2]) / 3.f };
 	float D = -P[0] * N[0] + -P[1] * N[1] + -P[2] * N[2];
 	//Using equation we can calculate the distance between sphere origin and plane
 	float Dist = sphere.Middle.X * N[0] + sphere.Middle.Y * N[1] + sphere.Middle.Z * N[2] + D;
-	if (abs(Dist) > sphere.Radius) return true;
+  
+	if (Dist > sphere.Radius || Dist < -sphere.Radius) return true;
 	else return false;
 }
 
@@ -675,7 +789,7 @@ bool ColDet::intersectRaySegmentSphere(float o[3], float d[3], Point so, float r
 	float b = m[0] * d[0] + m[1] * d[1] + m[2] * d[2]; //m.dot(d);
 	float c = m[0] * m[0] + m[1] * m[1] + m[2] * m[2] - radius2; //m.dot(m) - radius2;
 
-	// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0)
+	// Exit if rÂ’s origin outside s (c > 0) and r pointing away from s (b > 0)
 	if (c > 0.0f && b > 0.0f)
 		return false;
 	float discr = b * b - c;

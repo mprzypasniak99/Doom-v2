@@ -74,12 +74,27 @@ struct Plane
 	}
 };
 
+struct Triangle
+{
+	Point one;
+	Point two;
+	Point three;
+	Triangle(Point one, Point two, Point three)
+	{
+		this->one = one;
+		this->two = two;
+		this->three = three;
+	}
+};
+
 union Base
 {
 	Point point;
 	Sphere sphere;
 	Cuboid cuboid = Cuboid(0, 0, 0, 0);
 	Plane plane;
+	Triangle triangle;
+
 	Base() {}
 	Base(Point p)
 	{
@@ -97,11 +112,15 @@ union Base
 	{
 		plane = pl;
 	}
+	Base(Triangle t)
+	{
+		triangle = t;
+	}
 };
 struct Hitbox
 {
 	Base hitbox;
-	int type; // 1 - point, 2 - sphere, 3 - cuboid, 4 - plane
+	int type; // 1 - point, 2 - sphere, 3 - cuboid, 4 - plane, 5 - triangle
 	Hitbox() {}
 	Hitbox(Base b, int t)
 	{
@@ -116,7 +135,7 @@ public:
 	ColDet() {}
 	void triangles(Cuboid model, float triangles[12][3][3]);
 	void triangles(Plane plane, float triangles[2][3][3]);
-	float* normal(float* A, float* B, float* C);
+	void normal(float A[3], float B[3], float C[3], float* a, float* b, float* c);
 	float distance(Point a, Point b);
 	bool planeCollision(float triangles[3][3], Sphere sphere);
 	bool detector(Hitbox first, Hitbox second, float norm[4]);

@@ -14,7 +14,7 @@ protected:
 	float* colors;
 	float* normals;
 	float* texCoords;
-	int vertexCount;
+	long vertexCount;
 
 	GLuint tex;
 public:

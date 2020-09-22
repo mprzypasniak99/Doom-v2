@@ -210,7 +210,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	OG.addFoe(Foe(eye, m, 1.f, projectile));
 	OG.addRouteForFoe(2, glm::vec4(20.f, 4.f, 50.f, 1.f));
 	OG.addRouteForFoe(2, glm::vec4(20.f, 4.f, 75.f, 1.f));
-	OG.addSurroundingElement(Hitbox(Base(Cuboid(-1, -1, -1, 2, 2, 2)), 3));
+
 	OG.generateSurroundingHitbox(level);
 }
 
