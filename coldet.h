@@ -94,6 +94,7 @@ union Base
 	Cuboid cuboid = Cuboid(0, 0, 0, 0);
 	Plane plane;
 	Triangle triangle;
+
 	Base() {}
 	Base(Point p)
 	{

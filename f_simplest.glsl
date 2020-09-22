@@ -25,7 +25,7 @@ void main(void) {
 
 	vec4 r = reflect(-norm_l, norm_n);
 	float ln = clamp(dot(norm_l, norm_n), 0, 1);
-	float rv = clamp(pow(dot(r, norm_v), 20), 0, 1);
+	float rv = clamp(pow(dot(r, norm_v), 30), 0, 1);
 
 	vec4 texColor = texture(textureMap0, iTexCoord0);
 	pixelColor+=(vec4(texColor.rgb * ln, texColor.a) + vec4(1, 1, 1, 0) * rv * ln) / (length(l[i]) * 3);

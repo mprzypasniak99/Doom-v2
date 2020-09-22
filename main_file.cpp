@@ -195,11 +195,22 @@ void initOpenGLProgram(GLFWwindow* window) {
 	gun->scale(30.f);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
-	level = new Model("models/Level/level.obj", "metal.png");
-	//OG.addFoe(Foe(eye, glm::mat4(1.f), 1.f, projectile));
-	//OG.addRouteForFoe(0, glm::vec4(0.f, 3.f, -10.f, 1.f));
-	//OG.addRouteForFoe(0, glm::vec4(5.f, 3.f, 5.f, 1.f));
-	//OG.addSurroundingElement(Hitbox(Base(Cuboid(-20, 0, -20, 40, 8, 40)), 3));
+	level = new Model("models/Level/level2.obj", "metal.png");
+	glm::mat4 m = glm::mat4(1.f);
+	m[3] = glm::vec4(0.f, 3.f, 0.f, 1.f);
+	OG.addFoe(Foe(eye, m, 1.f, projectile));
+	OG.addRouteForFoe(0, glm::vec4(0.f, 3.f, -10.f, 1.f));
+	OG.addRouteForFoe(0, glm::vec4(5.f, 3.f, 5.f, 1.f));
+	
+	m[3] = glm::vec4(10.f, 3.f, 50.f, 1.f);
+	OG.addFoe(Foe(eye, m, 1.f, projectile));
+	OG.addRouteForFoe(1, glm::vec4(30.f, 3.f, 50.f, 1.f));
+	OG.addRouteForFoe(1, glm::vec4(10.f, 3.f, 50.f, 1.f));
+	m[3] = glm::vec4(20.f, 4.f, 75.f, 1.f);
+	OG.addFoe(Foe(eye, m, 1.f, projectile));
+	OG.addRouteForFoe(2, glm::vec4(20.f, 4.f, 50.f, 1.f));
+	OG.addRouteForFoe(2, glm::vec4(20.f, 4.f, 75.f, 1.f));
+
 	OG.generateSurroundingHitbox(level);
 }
 

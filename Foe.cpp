@@ -28,25 +28,25 @@ void Foe::updatePos(glm::mat4 V)
 
 		position = glm::rotate(position, glm::clamp(glm::radians(10.f), 0.f, glm::radians(angle)), glm::vec3(0.f, 1.f, 0.f)); // rotate the enemy
 	}
-	else if (abs(glm::distance(pos, route[count])) < 1)
+	else if (route.size() > 0)
 	{
-		count++;
-		count %= route.size();
+		if(abs(glm::distance(pos, route[count])) < 1)
+		{
+			count++;
+			count %= route.size();
+		}
+		else
+		{
+			glm::vec4 mov = glm::transpose(position) * glm::normalize(route[count] - pos) * elapsedTime.count() * speed;
+
+			float angle = glm::orientedAngle(glm::normalize(glm::vec2(mov.x, mov.z)), glm::normalize(glm::vec2(position[2][0], position[2][2])));
+			// angle between enemy's facing direction and direction of it's movement
+
+			position = glm::translate(position, glm::vec3(mov.x, mov.y, mov.z));
+
+			position = glm::rotate(position, glm::clamp(glm::radians(10.f), 0.f, glm::radians(angle)), glm::vec3(0.f, 1.f, 0.f)); // rotate the enemy
+		}
 	}
-	else
-	{
-		glm::vec4 mov = glm::transpose(position) * glm::normalize(route[count] - pos) * elapsedTime.count() * speed;
-
-		float angle = glm::orientedAngle(glm::normalize(glm::vec2(mov.x, mov.z)), glm::normalize(glm::vec2(position[2][0], position[2][2])));
-		// angle between enemy's facing direction and direction of it's movement
-
-		position = glm::translate(position, glm::vec3(mov.x, mov.y, mov.z));
-
-		position = glm::rotate(position, glm::clamp(glm::radians(10.f), 0.f, glm::radians(angle)), glm::vec3(0.f, 1.f, 0.f)); // rotate the enemy
-	}
-
-
-	
 }
 
 //void Foe::shoot(glm::vec4 playerPos)

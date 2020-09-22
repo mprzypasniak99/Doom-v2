@@ -152,6 +152,7 @@ bool ColDet::detector(Hitbox first, Hitbox second, float norm[4])
 			float N[3];
 			normal(polygons[l][0], polygons[l][1], polygons[l][2], &N[0], &N[1], &N[2]);
 			if (N[1] != 0) return false;
+
 			float planeY[3];
 			//Cross product between our new X axis and plane normal will create perpendicular vector that can work as an Y axis
 			planeY[0] = N[1] * planeX[2] - N[2] * planeX[1];
@@ -769,6 +770,7 @@ bool ColDet::planeCollision(float triangles[3][3], Sphere sphere)
 	float D = -P[0] * N[0] + -P[1] * N[1] + -P[2] * N[2];
 	//Using equation we can calculate the distance between sphere origin and plane
 	float Dist = sphere.Middle.X * N[0] + sphere.Middle.Y * N[1] + sphere.Middle.Z * N[2] + D;
+  
 	if (Dist > sphere.Radius || Dist < -sphere.Radius) return true;
 	else return false;
 }
@@ -787,7 +789,7 @@ bool ColDet::intersectRaySegmentSphere(float o[3], float d[3], Point so, float r
 	float b = m[0] * d[0] + m[1] * d[1] + m[2] * d[2]; //m.dot(d);
 	float c = m[0] * m[0] + m[1] * m[1] + m[2] * m[2] - radius2; //m.dot(m) - radius2;
 
-	// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0)
+	// Exit if rÂ’s origin outside s (c > 0) and r pointing away from s (b > 0)
 	if (c > 0.0f && b > 0.0f)
 		return false;
 	float discr = b * b - c;

@@ -375,6 +375,7 @@ void organiser::generateSurroundingHitbox(Model* env)
 
 	/*Hitbox* wall;
 
+
 	for (int i = 0; i < n; i+=12)
 	{
 		Point start_point = Point(v[i], v[i + 1], v[i + 2]);
@@ -412,5 +413,6 @@ void organiser::generateSurroundingHitbox(Model* env)
 		c.Y = v[i + 9];
 		c.Z = v[i + 10];
 		addSurroundingElement(Hitbox(Base(Triangle(a, b, c)), 5));
+
 	}
 }
