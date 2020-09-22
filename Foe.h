@@ -31,8 +31,6 @@ public:
 
 	void updatePos(float* shift);
 
-	//void shoot(glm::vec4 playerPos);
-
 	void kill_this_bastard();
 
 	bool is_bastard_alive();

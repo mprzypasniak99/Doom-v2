@@ -29,20 +29,18 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include <stdio.h>
 #include "constants.h"
 #include "lodepng.h"
-//#include "shaderprogram.h"
+#include "shaderprogram.h"
 #include "myCube.h"
 #include "myTeapot.h"
 #include "camera.hpp"
 #include "model.h"
 #include "wall.h"
 #include "Prop.h"
-//#include "Foe.h"
+#include "Foe.h"
 #include "Projectile.h"
 #include "organiser.h"
 
-float speed_x=0;
-float speed_y=0;
-float aspectRatio=1;
+float aspectRatio=10/6;
 organiser OG(Hitbox(Base(Sphere(0.f, 0.5f, 10.f, 1.f)), 2), Hitbox(Base(Sphere(0.f, 0.f, 0.f, 1.7747)), 2), Hitbox(Base(Sphere(0.f, 0.f, 0.f, 0.249151)), 2));
 Model wall = Model(myWallVertices, myWallColors, myWallNormals, myWallTexCoords, 6);
 
@@ -58,30 +56,12 @@ GLuint tex0;
 bool key_dir[4] = { false }; //zmienne używane do poruszania kamery
 bool shoot = false;
 
-//Projectile* t;
 Camera cam;
 glm::vec3 cPos = glm::vec3(0.f, 0.f, -10.f);
 glm::vec3 cDir = glm::vec3(0.f, 0.f, 10.f);
 
 float lastX = 250.0f, lastY = 250.0f, xoffset = 0.0f, yoffset = 0.0f, yaw = -90.0f, pitch = 0.0f, camSpeed = 0.1f;
 bool first = true;
-
-
-
-//Odkomentuj, żeby rysować kostkę
-//float* vertices = myCubeVertices;
-//float* normals = myCubeNormals;
-//float* texCoords = myCubeTexCoords;
-//float* colors = myCubeColors;
-//int vertexCount = myCubeVertexCount;
-
-
-//Odkomentuj, żeby rysować czajnik
-float* vertices = myTeapotVertices;
-float* normals = myTeapotVertexNormals;
-float* texCoords = myTeapotTexCoords;
-float* colors = myTeapotColors;
-int vertexCount = myTeapotVertexCount;
 
 
 //Procedura obsługi błędów
@@ -92,20 +72,12 @@ void error_callback(int error, const char* description) {
 
 void keyCallback(GLFWwindow* window,int key,int scancode,int action,int mods) {
     if (action==GLFW_PRESS) {
-        if (key==GLFW_KEY_LEFT) speed_x=-PI/2;
-        if (key==GLFW_KEY_RIGHT) speed_x=PI/2;
-        if (key==GLFW_KEY_UP) speed_y=PI/2;
-        if (key==GLFW_KEY_DOWN) speed_y=-PI/2;
 		if (key == GLFW_KEY_W) key_dir[up] = true;
 		if (key == GLFW_KEY_S) key_dir[down] = true;
 		if (key == GLFW_KEY_A) key_dir[left] = true;
 		if (key == GLFW_KEY_D) key_dir[right] = true;
     }
     if (action==GLFW_RELEASE) {
-        if (key==GLFW_KEY_LEFT) speed_x=0;
-        if (key==GLFW_KEY_RIGHT) speed_x=0;
-        if (key==GLFW_KEY_UP) speed_y=0;
-        if (key==GLFW_KEY_DOWN) speed_y=0;
 		if (key == GLFW_KEY_W) key_dir[up] = false;
 		if (key == GLFW_KEY_S) key_dir[down] = false;
 		if (key == GLFW_KEY_A) key_dir[left] = false;
@@ -155,8 +127,6 @@ void test_shot(glm::mat4 V)
 		// direction in which projectile will fly towards
 
 		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(dir.x, dir.z)));
-		
-		// angles by which projectile will be rotated to start facing the camera
 
 		pos = glm::rotate(pos, -angleY, glm::vec3(0.f, 1.f, 0.f));
 
@@ -193,7 +163,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	projectile = new Model("models/projectile/projectile.obj", "models/projectile/projectile.png");
 	gun = new Model("models/DoomShooter/gunCombined_process.obj", "models/DoomShooter/T_gun_BC.png");
 	gun->scale(30.f);
-	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
+	eye = new Model("models/virus/virus.obj", "models/virus/tex.png");
 	eye->scale(3.f);
 	level = new Model("models/Level/level2.obj", "models/Level/skin2.png");
 	glm::mat4 m = glm::mat4(1.f);
@@ -229,17 +199,15 @@ void freeOpenGLProgram(GLFWwindow* window) {
 
 
 //Procedura rysująca zawartość sceny
-void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
+void drawScene(GLFWwindow* window) {
 	//************Tutaj umieszczaj kod rysujący obraz******************l
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 	glm::mat4 V = cam.GetViewMatrix();
-    glm::mat4 P=glm::perspective(50.0f*PI/180.0f, aspectRatio, 0.01f, 100.0f); //Wylicz macierz rzutowania
+    glm::mat4 P=glm::perspective(80.0f*PI/180.0f, aspectRatio, 0.01f, 100.0f); //Wylicz macierz rzutowania
 
     glm::mat4 M=glm::mat4(1.0f);
-	M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Wylicz macierz modelu
-	M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f)); //Wylicz macierz modelu
 
 	glm::mat4 Mw = glm::mat4(1.0f);
 	Mw = glm::rotate(Mw, PI / 2, glm::vec3(0.f, 0.f, 1.f));
@@ -271,20 +239,6 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     
 
 	level->draw();
-	
-	//glVertexAttribPointer(1,4,GL_FLOAT,false,0,vertices); //Wskaż tablicę z danymi dla atrybutu vertex
-	//
-	//glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, colors);
-
-	//glVertexAttribPointer(3, 4, GL_FLOAT, false, 0, normals);
-
-	//glVertexAttribPointer(4, 2, GL_FLOAT, false, 0, texCoords);
-
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, tex0);
-
-	//glDrawArrays(GL_TRIANGLES,0,vertexCount); //Narysuj obiekt
-
 
 
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(MDoomGuy));
@@ -314,7 +268,7 @@ int main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	window = glfwCreateWindow(500, 500, "OpenGL", NULL, NULL);  //Utwórz okno 500x500 o tytule "OpenGL" i kontekst OpenGL.
+	window = glfwCreateWindow(1000, 600, "OpenGL", NULL, NULL);  //Utwórz okno 500x500 o tytule "OpenGL" i kontekst OpenGL.
 
 	if (!window) //Jeżeli okna nie udało się utworzyć, to zamknij program
 	{
@@ -334,19 +288,12 @@ int main(void)
 	initOpenGLProgram(window); //Operacje inicjujące
 
 	//Główna pętla
-	float angle_x=0; //Aktualny kąt obrotu obiektu
-	float angle_y=0; //Aktualny kąt obrotu obiektu
-	glfwSetTime(0); //Zeruj timer
 	while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
 	{
-        angle_x+=speed_x*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
-        angle_y+=speed_y*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
-        glfwSetTime(0); //Zeruj timer
-		//system("CLS");
 		cam.UpdateCam(key_dir);
 		OG.positionUpdate(cam.GetViewMatrix());
 		OG.collisionsHandling(cam.getPos(), window, &cam);
-		drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
+		drawScene(window); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
 	}
 

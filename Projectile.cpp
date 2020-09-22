@@ -22,12 +22,4 @@ bool Projectile::updatePos(glm::mat4 V)
 	position = glm::translate(position, glm::vec3(mov.x, mov.y, mov.z));
 
 	return true;
-	/*glm::vec4 position_Z_axis_V = V * position[2];
-
-	float angleY = glm::orientedAngle(glm::normalize(glm::vec2(posV.x, posV.z)), glm::normalize(glm::vec2(position_Z_axis_V.x, position_Z_axis_V.z)));
-
-	float angleX = glm::orientedAngle(glm::normalize(glm::vec2(posV.y, posV.z)), glm::normalize(glm::vec2(position_Z_axis_V.y, position_Z_axis_V.z)));
-
-	position = glm::rotate(position, -glm::radians(angleY), glm::vec3(0.f, 1.f, 0.f));
-	position = glm::rotate(position, glm::radians(angleX), glm::vec3(1.f, 0.f, 0.f));*/
 }

@@ -49,37 +49,6 @@ void Foe::updatePos(glm::mat4 V)
 	}
 }
 
-//void Foe::shoot(glm::vec4 playerPos)
-//{
-//	glm::vec4 dist = playerPos - position[3]; // computing position in eye space
-//	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-//
-//	std::chrono::duration<float> elapsedTime = now - lastShoot;
-//
-//	if (glm::length(dist) < 20 && elapsedTime.count() >= 2.f)
-//	{
-//		lastShoot = now;
-//
-//		glm::vec4 dir = glm::normalize(dist);
-//		
-//		glm::mat4 pos = position;
-//
-//		float angleY = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].x, pos[2].z)), glm::normalize(glm::vec2(dir.x, dir.z)));
-//
-//		// angles by which projectile will be rotated to start facing the camera
-//
-//		pos = glm::rotate(pos, -angleY, glm::vec3(0.f, 1.f, 0.f));
-//
-//		float angleX = glm::orientedAngle(glm::normalize(glm::vec2(pos[2].y, pos[2].z)), glm::normalize(glm::vec2(dir.y, dir.z)));
-//
-//		pos = glm::rotate(pos, -angleX, glm::vec3(1.f, 0.f, 0.f));
-//
-//		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir)));
-//
-//		OG->addFoeBullet(Projectile(bullet, pos, dir, 2.f, 5.f));
-//	}
-//}
-
 void Foe::kill_this_bastard()
 {
 	health--;
