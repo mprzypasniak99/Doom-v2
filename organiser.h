@@ -30,7 +30,7 @@ private:
 	//go to collisionHandling if you want to know why those functions are private
 	void player_foes(glm::vec3 player, const char* output_text, GLFWwindow* window); //under construction 
 	void player_enemy_bullets(glm::vec3 player, const char* output_text, GLFWwindow* window); //collisons between player and enemy bullets
-	void player_surrounding(Camera* cam); //done, but NOT tested, do it Majkel
+	void player_surrounding(Camera* cam); //collisions between player and surrounding
 	//void foes_foes(); under construction
 	void foes_player_bullets(); //collison handling between foes and player bullets
 	void foes_foe_bullets(); //foes may hit each other so we have to handle this collision (only if don't want foe bullets fly through foes)

@@ -75,7 +75,7 @@ void organiser::foes_foe_bullets()
 	{
 		foes_hitbox.hitbox.sphere.Middle.X = (*fit).getPosX();
 		foes_hitbox.hitbox.sphere.Middle.Y = (*fit).getPosY();
-		foes_hitbox.hitbox.sphere.Middle.Y = (*fit).getPosZ();
+		foes_hitbox.hitbox.sphere.Middle.Z = (*fit).getPosZ();
 		auto bit = foe_bullets.begin();
 		while (bit < foe_bullets.end())
 		{
@@ -195,7 +195,7 @@ void organiser::addRouteForFoe(int fn, glm::vec4 point)
 	foes[fn].addRoutePoint(point);
 }
 
-//debugging
+
 void organiser::shoot(Foe * foe, glm::vec4 playerPos)
 {
 	glm::vec4 dist = playerPos - foe->getPos()[3]; // computing position in eye space
@@ -223,7 +223,7 @@ void organiser::shoot(Foe * foe, glm::vec4 playerPos)
 
 		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir)));
 
-		addFoeBullet(Projectile(foe->returnBullet(), pos, dir, 2.f, 5.f));
+		addFoeBullet(Projectile(foe->returnBullet(), pos, dir, 10.f, 5.f));
 	}
 }
 
@@ -309,8 +309,6 @@ void organiser::player_surrounding(Camera* cam)
 		float shift[4] = { 0, 0, 0, 0 };
 		if (detector.detector(this->player, surrounding[i], shift))
 		{
-			std::cout << i << " " << shift[0] << " " << shift[1] << " " << shift[2] << "\n";
-			std::cout << i << " " << this->player.hitbox.sphere.Middle.X << " " << this->player.hitbox.sphere.Middle.Y << " " << this->player.hitbox.sphere.Middle.Z << "\n";
 			float speed = cam->getCamSpeed();
 			shift[0] /= shift[3];
 			shift[1] /= shift[3];
@@ -372,35 +370,8 @@ void organiser::generateSurroundingHitbox(Model* env)
 {
 	float* v = env->getVertices();
 	int n = env->getVertexCount()*4;
-
-	/*Hitbox* wall;
-
-
-	for (int i = 0; i < n; i+=12)
-	{
-		Point start_point = Point(v[i], v[i + 1], v[i + 2]);
-		float x[2] = { v[i + 4] - start_point.X, v[i + 8] - start_point.X };
-		float y[2] = { v[i + 5] - start_point.Y, v[i + 9] - start_point.Y };
-		float z[2] = { v[i + 6] - start_point.Z, v[i + 10] - start_point.Z };
-		float x_shift, y_shift, z_shift;
-		x_shift = std::max(abs(x[0]), abs(x[1]));
-		y_shift = std::max(abs(y[0]), abs(y[1]));
-		z_shift = std::max(abs(z[0]), abs(z[1]));
-
-		for (int j = 0; j < 2; j++)
-		{
-			if (x_shift == abs(x[j])) x_shift = x[j];
-			if (y_shift == abs(y[j])) y_shift = y[j];
-			if (z_shift == abs(z[i])) z_shift = z[j];
-		}
-
-		wall = new Hitbox(Base(Plane(start_point.X, start_point.Y, start_point.Z, x_shift, y_shift, z_shift)), 4);
-
-		addSurroundingElement(*wall);
-
-		delete(wall);
-	}*/
 	Point a, b, c;
+
 	for (int i = 0; i < n; i+=12)
 	{
 		a.X = v[i];
@@ -412,7 +383,7 @@ void organiser::generateSurroundingHitbox(Model* env)
 		c.X = v[i + 8];
 		c.Y = v[i + 9];
 		c.Z = v[i + 10];
-		addSurroundingElement(Hitbox(Base(Triangle(a, b, c)), 5));
+		addSurroundingElement(Hitbox(Base(Triangle(a, b, c)), 4));
 
 	}
 }

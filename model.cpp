@@ -40,21 +40,17 @@ bool Model::load3dModel(const char* model)
 	for (int i = 0; i < loader.LoadedMeshes[0].Indices.size(); i++)
 	{
 		int tmp = loader.LoadedMeshes[0].Indices[i];
-		//printf("%f %f %f\n", loader.LoadedMeshes[0].Vertices[tmp].Position.X, loader.LoadedMeshes[0].Vertices[tmp].Position.Y, loader.LoadedMeshes[0].Vertices[tmp].Position.Z);
 
 		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.X);
 		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.Y);
 		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.Z);
 		v.push_back(1.f);
 
-		//tmp = loader.LoadedMeshes[0].Indices[i+1];
 
 		n.push_back(loader.LoadedMeshes[0].Vertices[tmp].Normal.X);
 		n.push_back(loader.LoadedMeshes[0].Vertices[tmp].Normal.Y);
 		n.push_back(loader.LoadedMeshes[0].Vertices[tmp].Normal.Z);
 		n.push_back(0.f);
-
-		//tmp = loader.LoadedMeshes[0].Indices[i+2];
 
 		t.push_back(loader.LoadedMeshes[0].Vertices[tmp].TextureCoordinate.X);
 		t.push_back(loader.LoadedMeshes[0].Vertices[tmp].TextureCoordinate.Y);
