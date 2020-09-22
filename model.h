@@ -14,7 +14,7 @@ protected:
 	float* colors;
 	float* normals;
 	float* texCoords;
-	int vertexCount;
+	long vertexCount;
 
 	GLuint tex;
 public:
@@ -28,6 +28,8 @@ public:
 	void draw();
 	void scale(float multiplier);
 
+	float* getVertices();
+	int getVertexCount();
 };
 
 GLuint readTexture(const char* filename);

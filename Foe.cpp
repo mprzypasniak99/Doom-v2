@@ -17,7 +17,7 @@ void Foe::updatePos(glm::mat4 V)
 	std::chrono::duration<float> elapsedTime = now - lastTime;
 	lastTime = now;
 
-	if (glm::length(posV) < 20 && glm::length(posV) > 5) // player needs to be in correct distance to the enemy for it to follow him
+	if (glm::length(posV) < 20) // player needs to be in correct distance to the enemy for it to follow him
 	{
 		glm::vec4 mov = glm::transpose(position) * glm::transpose(V) * glm::normalize(posV * -1.f) * elapsedTime.count() * speed;
 		

@@ -31,7 +31,6 @@ Model::Model(const char* model, const char* texture)
 bool Model::load3dModel(const char* model)
 {
 	objl::Loader loader;
-
 	if (!loader.LoadFile(model))
 	{
 		return false;
@@ -41,6 +40,7 @@ bool Model::load3dModel(const char* model)
 	for (int i = 0; i < loader.LoadedMeshes[0].Indices.size(); i++)
 	{
 		int tmp = loader.LoadedMeshes[0].Indices[i];
+		//printf("%f %f %f\n", loader.LoadedMeshes[0].Vertices[tmp].Position.X, loader.LoadedMeshes[0].Vertices[tmp].Position.Y, loader.LoadedMeshes[0].Vertices[tmp].Position.Z);
 
 		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.X);
 		v.push_back(loader.LoadedMeshes[0].Vertices[tmp].Position.Y);
@@ -132,4 +132,14 @@ void Model::scale(float multiplier)
 	{
 		vertices[i] *= multiplier;
 	}
+}
+
+float* Model::getVertices()
+{
+	return vertices;
+}
+
+int Model::getVertexCount()
+{
+	return vertexCount;
 }

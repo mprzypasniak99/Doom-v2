@@ -7,6 +7,7 @@ version 0.8
 #define ORGANISER_H
 
 #include <Foe.h>
+#include <algorithm>
 #include "camera.hpp"
 #include "coldet.h"
 #include "shaderprogram.h"
@@ -45,6 +46,7 @@ public:
 	void addPlayerBullet(Projectile bullet);
 	void addFoeBullet(Projectile bullet);
 	void addSurroundingElement(Hitbox element);
+	void generateSurroundingHitbox(Model* env);
 	void positionUpdate(glm::mat4 V); //Updating all elements positions
 	void collisionsHandling(glm::vec3 player, GLFWwindow* window, Camera* cam); //One Function to rule them all, One Function to find them, One Function to bring them all, and in the darkness bind them,
 	void drawAllElements(ShaderProgram* sp, glm::vec4 ppos); //if you like drawing, it's function for you

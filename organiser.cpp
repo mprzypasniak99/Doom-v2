@@ -306,9 +306,11 @@ void organiser::player_surrounding(Camera* cam)
 	this->player.hitbox.sphere.Middle.Z = tmpos.z;
 	for (int i = 0; i < surrounding.size(); i++)
 	{
-		float shift[4];
+		float shift[4] = { 0, 0, 0, 0 };
 		if (detector.detector(this->player, surrounding[i], shift))
 		{
+			std::cout << i << " " << shift[0] << " " << shift[1] << " " << shift[2] << "\n";
+			std::cout << i << " " << this->player.hitbox.sphere.Middle.X << " " << this->player.hitbox.sphere.Middle.Y << " " << this->player.hitbox.sphere.Middle.Z << "\n";
 			float speed = cam->getCamSpeed();
 			shift[0] /= shift[3];
 			shift[1] /= shift[3];
@@ -363,5 +365,52 @@ void organiser::foes_surrounding()
 				foes_hitbox.hitbox.sphere.Middle.Z = foes[i].getPosZ();
 			}
 		}
+	}
+}
+
+void organiser::generateSurroundingHitbox(Model* env)
+{
+	float* v = env->getVertices();
+	int n = env->getVertexCount()*4;
+
+	/*Hitbox* wall;
+
+	for (int i = 0; i < n; i+=12)
+	{
+		Point start_point = Point(v[i], v[i + 1], v[i + 2]);
+		float x[2] = { v[i + 4] - start_point.X, v[i + 8] - start_point.X };
+		float y[2] = { v[i + 5] - start_point.Y, v[i + 9] - start_point.Y };
+		float z[2] = { v[i + 6] - start_point.Z, v[i + 10] - start_point.Z };
+		float x_shift, y_shift, z_shift;
+		x_shift = std::max(abs(x[0]), abs(x[1]));
+		y_shift = std::max(abs(y[0]), abs(y[1]));
+		z_shift = std::max(abs(z[0]), abs(z[1]));
+
+		for (int j = 0; j < 2; j++)
+		{
+			if (x_shift == abs(x[j])) x_shift = x[j];
+			if (y_shift == abs(y[j])) y_shift = y[j];
+			if (z_shift == abs(z[i])) z_shift = z[j];
+		}
+
+		wall = new Hitbox(Base(Plane(start_point.X, start_point.Y, start_point.Z, x_shift, y_shift, z_shift)), 4);
+
+		addSurroundingElement(*wall);
+
+		delete(wall);
+	}*/
+	Point a, b, c;
+	for (int i = 0; i < n; i+=12)
+	{
+		a.X = v[i];
+		a.Y = v[i + 1];
+		a.Z = v[i + 2];
+		b.X = v[i + 4];
+		b.Y = v[i + 5];
+		b.Z = v[i + 6];
+		c.X = v[i + 8];
+		c.Y = v[i + 9];
+		c.Z = v[i + 10];
+		addSurroundingElement(Hitbox(Base(Triangle(a, b, c)), 5));
 	}
 }

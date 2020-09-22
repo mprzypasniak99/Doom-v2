@@ -196,10 +196,11 @@ void initOpenGLProgram(GLFWwindow* window) {
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
 	level = new Model("models/Level/level.obj", "metal.png");
-	OG.addFoe(Foe(eye, glm::mat4(1.f), 1.f, projectile));
-	OG.addRouteForFoe(0, glm::vec4(0.f, 0.f, -10.f, 1.f));
-	OG.addRouteForFoe(0, glm::vec4(5.f, 0.f, 5.f, 1.f));
-	OG.addSurroundingElement(Hitbox(Base(Cuboid(-1, -1, -1, 2, 2, 2)), 3));
+	//OG.addFoe(Foe(eye, glm::mat4(1.f), 1.f, projectile));
+	//OG.addRouteForFoe(0, glm::vec4(0.f, 3.f, -10.f, 1.f));
+	//OG.addRouteForFoe(0, glm::vec4(5.f, 3.f, 5.f, 1.f));
+	//OG.addSurroundingElement(Hitbox(Base(Cuboid(-20, 0, -20, 40, 8, 40)), 3));
+	OG.generateSurroundingHitbox(level);
 }
 
 
@@ -330,7 +331,7 @@ int main(void)
         angle_x+=speed_x*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
         angle_y+=speed_y*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
         glfwSetTime(0); //Zeruj timer
-		system("CLS");
+		//system("CLS");
 		cam.UpdateCam(key_dir);
 		OG.positionUpdate(cam.GetViewMatrix());
 		OG.collisionsHandling(cam.getPos(), window, &cam);
