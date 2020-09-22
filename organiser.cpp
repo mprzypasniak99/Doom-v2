@@ -365,3 +365,36 @@ void organiser::foes_surrounding()
 		}
 	}
 }
+
+void organiser::generateSurroundingHitbox(Model* env)
+{
+	float* v = env->getVertices();
+	int n = env->getVertexCount();
+
+	Hitbox* wall;
+
+	for (int i = 0; i < n; i+=12)
+	{
+		Point start_point = Point(v[i], v[i + 1], v[i + 2]);
+		float x[2] = { v[i + 4] - start_point.X, v[i + 8] - start_point.X };
+		float y[2] = { v[i + 5] - start_point.Y, v[i + 9] - start_point.Y };
+		float z[2] = { v[i + 6] - start_point.Z, v[i + 10] - start_point.Z };
+		float x_shift, y_shift, z_shift;
+		x_shift = std::max(abs(x[0]), abs(x[1]));
+		y_shift = std::max(abs(y[0]), abs(y[1]));
+		z_shift = std::max(abs(z[0]), abs(z[1]));
+
+		for (int j = 0; j < 2; j++)
+		{
+			if (x_shift == abs(x[j])) x_shift = x[j];
+			if (y_shift == abs(y[j])) y_shift = y[j];
+			if (z_shift == abs(z[i])) z_shift = z[j];
+		}
+
+		wall = new Hitbox(Base(Plane(start_point.X, start_point.Y, start_point.Z, x_shift, y_shift, z_shift)), 4);
+
+		addSurroundingElement(*wall);
+
+		delete(wall);
+	}
+}

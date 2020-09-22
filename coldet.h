@@ -58,11 +58,28 @@ struct Cuboid
 	}
 };
 
+struct Plane
+{
+	Point one_vertex;
+	float X_shift;
+	float Y_shift;
+	float Z_shift;
+
+	Plane(float x, float y, float z, float x_shift, float y_shift, float z_shift)
+	{
+		one_vertex = Point(x, y, z);
+		X_shift = x_shift;
+		Y_shift = y_shift;
+		Z_shift = z_shift;
+	}
+};
+
 union Base
 {
 	Point point;
 	Sphere sphere;
 	Cuboid cuboid = Cuboid(0, 0, 0, 0);
+	Plane plane;
 	Base() {}
 	Base(Point p)
 	{
@@ -76,11 +93,15 @@ union Base
 	{
 		cuboid = c;
 	}
+	Base(Plane pl)
+	{
+		plane = pl;
+	}
 };
 struct Hitbox
 {
 	Base hitbox;
-	int type; // 1 - point, 2 - sphere, 3 - cuboid
+	int type; // 1 - point, 2 - sphere, 3 - cuboid, 4 - plane
 	Hitbox() {}
 	Hitbox(Base b, int t)
 	{
@@ -94,6 +115,7 @@ class ColDet
 public:
 	ColDet() {}
 	void triangles(Cuboid model, float triangles[12][3][3]);
+	void triangles(Plane plane, float triangles[2][3][3]);
 	float* normal(float* A, float* B, float* C);
 	float distance(Point a, Point b);
 	bool planeCollision(float triangles[3][3], Sphere sphere);

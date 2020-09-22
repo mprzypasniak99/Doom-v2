@@ -28,6 +28,8 @@ public:
 	void draw();
 	void scale(float multiplier);
 
+	float* getVertices();
+	int getVertexCount();
 };
 
 GLuint readTexture(const char* filename);
