@@ -2,23 +2,26 @@
 
 void Camera::UpdateCam(bool tab[4]) //trzeba przekazać do funkcji tablicę wynikową z obsługi klawiszy
 {
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+	std::chrono::duration<float> time = now - lastTime;
+	lastTime = now;
 	if (tab[up])
 	{
-		cPos += camSpeed * glm::normalize(glm::vec3(cDir.x, 0.f, cDir.z));
+		cPos += camSpeed * glm::normalize(glm::vec3(cDir.x, 0.f, cDir.z)) * time.count();
 		//cPos.y -= camSpeed * cDir.y;
 	}
 	if (tab[down])
 	{
-		cPos -= camSpeed * glm::normalize(glm::vec3(cDir.x, 0.f, cDir.z));
+		cPos -= camSpeed * glm::normalize(glm::vec3(cDir.x, 0.f, cDir.z)) * time.count();
 		//cPos.y += camSpeed * cDir.y;
 	}
 	if (tab[left])
 	{
-		cPos -= camSpeed * cDirX;
+		cPos -= camSpeed * cDirX * time.count();
 	}
 	if (tab[right])
 	{
-		cPos += camSpeed * cDirX;
+		cPos += camSpeed * cDirX * time.count();
 	}
 }
 

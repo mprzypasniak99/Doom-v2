@@ -166,7 +166,7 @@ void test_shot(glm::mat4 V)
 
 		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir).xyz));
 
-		OG.addPlayerBullet(Projectile(projectile, pos, dir, 7.f, 5.f));
+		OG.addPlayerBullet(Projectile(projectile, pos, dir, 10.f, 5.f));
 		shoot = false;
 	}
 }
@@ -195,7 +195,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	gun->scale(30.f);
 	eye = new Model("models/virus/virus.obj", "models/virus/virus.png");
 	eye->scale(3.f);
-	level = new Model("models/Level/level2.obj", "metal.png");
+	level = new Model("models/Level/level2.obj", "models/Level/skin2.png");
 	glm::mat4 m = glm::mat4(1.f);
 	m[3] = glm::vec4(0.f, 3.f, 0.f, 1.f);
 	OG.addFoe(Foe(eye, m, 1.f, projectile));

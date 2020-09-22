@@ -223,7 +223,7 @@ void organiser::shoot(Foe * foe, glm::vec4 playerPos)
 
 		pos = glm::translate(pos, 10.f * glm::vec3(glm::normalize(glm::transpose(pos) * dir)));
 
-		addFoeBullet(Projectile(foe->returnBullet(), pos, dir, 2.f, 5.f));
+		addFoeBullet(Projectile(foe->returnBullet(), pos, dir, 10.f, 5.f));
 	}
 }
 
