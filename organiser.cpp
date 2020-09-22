@@ -369,7 +369,7 @@ void organiser::foes_surrounding()
 void organiser::generateSurroundingHitbox(Model* env)
 {
 	float* v = env->getVertices();
-	int n = env->getVertexCount();
+	int n = env->getVertexCount() * 4;
 
 	Hitbox* wall;
 
@@ -388,7 +388,7 @@ void organiser::generateSurroundingHitbox(Model* env)
 		{
 			if (x_shift == abs(x[j])) x_shift = x[j];
 			if (y_shift == abs(y[j])) y_shift = y[j];
-			if (z_shift == abs(z[i])) z_shift = z[j];
+			if (z_shift == abs(z[j])) z_shift = z[j];
 		}
 
 		wall = new Hitbox(Base(Plane(start_point.X, start_point.Y, start_point.Z, x_shift, y_shift, z_shift)), 4);
